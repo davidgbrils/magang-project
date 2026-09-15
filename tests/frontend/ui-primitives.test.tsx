@@ -45,11 +45,17 @@ describe("TextField", () => {
 });
 
 describe("StatusBadge", () => {
-  it("always exposes status as text instead of colour alone", () => {
-    const markup = renderToStaticMarkup(<StatusBadge tone="success">Selesai</StatusBadge>);
+  it("requires and renders a string status label instead of colour alone", () => {
+    const markup = renderToStaticMarkup(<StatusBadge tone="success" label="Selesai" />);
 
     expect(markup).toContain("Selesai");
     expect(markup).toContain('data-tone="success"');
+  });
+
+  it("rejects a blank status label", () => {
+    expect(() => renderToStaticMarkup(<StatusBadge label="   " />)).toThrow(
+      "StatusBadge membutuhkan label teks.",
+    );
   });
 });
 

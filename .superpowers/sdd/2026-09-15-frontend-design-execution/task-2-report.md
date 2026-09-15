@@ -107,3 +107,57 @@ The official `#66717A` value remains available as `--color-text-secondary`. Norm
 
 - The primitives are not mounted on a routed page in Task 2, so visual browser and 200 percent zoom checks must be repeated when Task 3 consumes them.
 - Plus Jakarta Sans is named in the Stitch direction but was not added because there is no approved local font asset; Arial is intentionally preserved per the Task 2 brief.
+
+## Review fix
+
+The Task 2 review identified four issues. They were resolved without changing the API, backend, Supabase, OpenAPI, or processor boundary.
+
+- `StatusBadge` now requires `label: string` and rejects blank labels. This prevents icons, fragments, or whitespace from becoming the only status representation.
+- Each button variant has a visible hover treatment inside `@media (hover: hover) and (pointer: fine)`. Every hover selector excludes active and disabled buttons, preserving pressed and disabled depth.
+- Content width, form width, minimum viewport width, fluid page padding, hover depth, and easing are now design tokens instead of literals in `globals.css`.
+- Semantic color provenance is recorded below with the stable Stitch project identifier and retrieval path.
+
+### Review RED
+
+Command:
+
+```text
+npm test -- tests/frontend/ui-primitives.test.tsx
+```
+
+Result: exit 1. The new required-label test rendered an empty badge against the old children implementation.
+
+```text
+FAIL  StatusBadge > requires and renders a string status label instead of colour alone
+Expected: "Selesai"
+Received: "<span class=\"ui-status-badge\" data-tone=\"success\"></span>"
+Tests  1 failed | 7 passed (8)
+```
+
+A second RED cycle covered the runtime blank-label boundary:
+
+```text
+FAIL  StatusBadge > rejects a blank status label
+AssertionError: expected [Function] to throw an error
+Tests  1 failed | 8 passed (9)
+```
+
+### Review GREEN and full gate
+
+| Command | Result |
+|---|---|
+| `npm test -- tests/frontend/ui-primitives.test.tsx` | exit 0, 1 file and 9 tests passed |
+| `npm run lint` | exit 0, ESLint reported no errors or warnings |
+| `npm run typecheck` | exit 0, TypeScript reported no errors |
+| `npm test` | exit 0, 2 files and 16 tests passed |
+| `npm run build` | exit 0, Next.js 15.5.3 compiled in 2.2 seconds and generated 5 static pages |
+
+### Reproducible Stitch color provenance
+
+- Source project: `ITCC Wisuda Sync`
+- Stable Stitch project ID: `12724873765600380458`
+- Retrieval path: open the project by ID through an authenticated Stitch connection, read its project design-system metadata, then inspect the semantic color entries.
+- Recorded mapping: success `#2F7D54`, warning `#956D18`, danger `#A43D42`.
+- Cross-check: the same project metadata supplies surface `#E0E0E0`, highlight `#FFFFFF`, dark shadow `#BEBEBE`, main text `#27313A`, secondary text `#66717A`, and primary action `#356AE6`.
+
+No API key, signed asset URL, session identifier, or other credential is stored in this report.

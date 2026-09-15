@@ -16,7 +16,7 @@
 
 html,
 body {
-  min-width: 20rem;
+  min-width: var(--viewport-min-width);
   min-height: 100dvh;
   background: var(--color-surface);
 }
@@ -43,14 +43,14 @@ input {
 }
 
 main {
-  width: min(100%, 45rem);
+  width: min(100%, var(--content-max-width));
   margin-inline: auto;
-  padding: clamp(var(--space-6), 5vw, var(--space-8));
+  padding: clamp(var(--space-6), var(--content-padding-fluid), var(--space-8));
 }
 
 form {
   display: grid;
-  max-width: 26.25rem;
+  max-width: var(--form-max-width);
   gap: var(--space-2);
 }
 
@@ -76,7 +76,11 @@ form {
   background: var(--color-surface);
   box-shadow: var(--shadow-raised);
   cursor: pointer;
-  transition: box-shadow var(--motion-fast) ease-out;
+  transition:
+    box-shadow var(--motion-fast) var(--motion-ease-out),
+    color var(--motion-fast) var(--motion-ease-out),
+    background-color var(--motion-fast) var(--motion-ease-out),
+    border-color var(--motion-fast) var(--motion-ease-out);
 }
 
 .ui-button:active:not(:disabled) {
@@ -98,6 +102,22 @@ form {
 .ui-button--quiet {
   border-color: transparent;
   box-shadow: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ui-button--primary:hover:not(:active):not(:disabled) {
+    box-shadow: var(--shadow-raised-hover);
+  }
+
+  .ui-button--secondary:hover:not(:active):not(:disabled) {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-raised-hover);
+  }
+
+  .ui-button--quiet:hover:not(:active):not(:disabled) {
+    color: var(--color-primary);
+    background: var(--color-highlight);
+  }
 }
 
 .ui-field {
