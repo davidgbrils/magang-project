@@ -461,6 +461,99 @@ form {
   padding-left: var(--space-6);
 }
 
+.sync-selection,
+.sync-progress {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.sync-selection__intro,
+.sync-progress__intro {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sync-selection__intro h1,
+.sync-selection__intro p,
+.sync-progress__intro h1,
+.sync-progress__intro p,
+.sync-progress__meter p {
+  margin: 0;
+}
+
+.sync-selection__form {
+  display: grid;
+  width: 100%;
+  max-width: var(--form-max-width);
+  gap: var(--space-4);
+}
+
+.sync-selection__fieldset {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: var(--border-structural);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-recessed);
+}
+
+.sync-selection__fieldset legend {
+  padding-inline: var(--space-2);
+  font-weight: 700;
+}
+
+.sync-selection__field {
+  margin-top: var(--space-2);
+  font-weight: 700;
+}
+
+.sync-selection__fieldset select {
+  min-height: var(--control-min-size);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-structural);
+  border-radius: var(--radius-control);
+  color: var(--color-text-main);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-recessed);
+}
+
+.sync-selection__unavailable,
+.sync-selection__error,
+.sync-progress__error {
+  margin: 0;
+}
+
+.sync-selection__unavailable {
+  color: var(--color-text-secondary-accessible);
+  font-size: var(--font-size-sm);
+}
+
+.sync-selection__error,
+.sync-progress__error {
+  color: var(--color-danger);
+}
+
+.sync-progress__meter,
+.sync-progress__counts {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-structural);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-recessed);
+}
+
+.sync-progress__meter progress {
+  width: 100%;
+  height: var(--space-3);
+  accent-color: var(--color-primary);
+}
+
+.sync-progress__counts {
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  box-shadow: var(--shadow-raised);
+}
+
 .auth-state,
 .login-page {
   display: grid;

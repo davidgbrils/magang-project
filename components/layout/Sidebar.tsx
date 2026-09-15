@@ -30,6 +30,8 @@ const PLANNED_NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = 
 export const IMPLEMENTED_PROTECTED_ROUTES: readonly string[] = [
   "/user/graduation-upload",
   "/user/file-validation",
+  "/user/reference-selection",
+  "/user/synchronization/[id]/progress",
 ];
 
 export const NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
