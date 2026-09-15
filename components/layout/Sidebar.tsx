@@ -32,6 +32,9 @@ export const IMPLEMENTED_PROTECTED_ROUTES: readonly string[] = [
   "/user/file-validation",
   "/user/reference-selection",
   "/user/synchronization/[id]/progress",
+  "/user/synchronization/[id]/preview",
+  "/user/synchronization/[id]/review",
+  "/user/synchronization/[id]/output",
 ];
 
 export const NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
