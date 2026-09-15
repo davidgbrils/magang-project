@@ -65,14 +65,16 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   const response = await fetch(getApiUrl(path), { ...init, headers: requestHeaders });
   const rawBody = await response.text();
   let body: unknown;
+  let hasInvalidJson = false;
   if (rawBody.trim()) {
     try {
       body = JSON.parse(rawBody) as unknown;
     } catch {
-      body = undefined;
+      hasInvalidJson = true;
     }
   }
 
   if (!response.ok) throw new ApiClientError(response.status, asApiError(body, response.status));
+  if (hasInvalidJson) throw new Error("Respons API tidak berisi JSON yang valid.");
   return body as T;
 }

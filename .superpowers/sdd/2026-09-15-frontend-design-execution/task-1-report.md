@@ -8,6 +8,7 @@ Status: DONE
 - Kept bearer authentication opt-in through `RequestOptions.accessToken`; requests without a supplied token do not receive an `Authorization` header.
 - Parsed valid JSON bodies independently of `content-type`.
 - Converted malformed, non-JSON, and empty non-2xx bodies to the typed `HTTP_ERROR` fallback instead of leaking a JSON parser error.
+- Rejected malformed JSON on a 2xx response with a clear `Error` instead of silently resolving `undefined`.
 - Added focused tests for the common error envelope, a missing `content-type`, malformed and non-JSON errors, successful JSON, and token opt-in.
 
 ## TDD evidence
@@ -44,13 +45,40 @@ npm test -- tests/frontend/api-client.test.ts
 
 Result: exit code 0. `tests/frontend/api-client.test.ts` passed, 6 of 6 tests green.
 
+### Regression RED: malformed JSON on 2xx
+
+Command:
+
+```text
+npm test -- tests/frontend/api-client.test.ts
+```
+
+Result: exit code 1. Vitest ran 7 tests: 1 failed and 6 passed.
+
+Expected failure:
+
+```text
+FAIL  tests/frontend/api-client.test.ts > request API error boundary > rejects malformed JSON from a successful response
+AssertionError: promise resolved "undefined" instead of rejecting
+```
+
+### Regression GREEN
+
+Command:
+
+```text
+npm test -- tests/frontend/api-client.test.ts
+```
+
+Result: exit code 0. `tests/frontend/api-client.test.ts` passed, 7 of 7 tests green.
+
 ## Final verification
 
 | Command | Result |
 | --- | --- |
 | `npm run lint` | PASS, exit code 0; ESLint completed without findings. |
 | `npm run typecheck` | PASS, exit code 0; `tsc --noEmit` completed without diagnostics. |
-| `npm test` | PASS, exit code 0; 1 test file and 6 tests passed. |
+| `npm test` | PASS, exit code 0; 1 test file and 7 tests passed. |
 | `npm run build` | PASS, exit code 0; Next.js 15.5.3 compiled and generated 5 static pages, including `/` and `/login`. |
 
 ## Concerns

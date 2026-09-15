@@ -92,6 +92,22 @@ describe("request API error boundary", () => {
     });
   });
 
+  it("rejects malformed JSON from a successful response", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response("{not-json", {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      ),
+    );
+
+    await expect(request("/api/me")).rejects.toThrow(
+      "Respons API tidak berisi JSON yang valid.",
+    );
+  });
+
   it("adds authorization only when an access token is supplied", async () => {
     vi.stubGlobal(
       "fetch",
