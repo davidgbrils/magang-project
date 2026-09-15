@@ -63,8 +63,15 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   if (accessToken) requestHeaders.set("Authorization", `Bearer ${accessToken}`);
 
   const response = await fetch(getApiUrl(path), { ...init, headers: requestHeaders });
-  const contentType = response.headers.get("content-type") ?? "";
-  const body: unknown = contentType.includes("application/json") ? await response.json() : undefined;
+  const rawBody = await response.text();
+  let body: unknown;
+  if (rawBody.trim()) {
+    try {
+      body = JSON.parse(rawBody) as unknown;
+    } catch {
+      body = undefined;
+    }
+  }
 
   if (!response.ok) throw new ApiClientError(response.status, asApiError(body, response.status));
   return body as T;
