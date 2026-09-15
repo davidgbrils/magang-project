@@ -376,6 +376,11 @@ form {
   color: var(--color-danger);
 }
 
+.auth-state__error {
+  margin: 0;
+  color: var(--color-danger);
+}
+
 @media (hover: hover) and (pointer: fine) {
   .app-sidebar__navigation a:hover,
   .auth-state__link:hover {

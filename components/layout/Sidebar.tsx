@@ -9,7 +9,7 @@ type NavigationItem = {
   label: string;
 };
 
-export const NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
+const PLANNED_NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
   USER: [
     { href: "/user/dashboard", label: "Dashboard operasional" },
     { href: "/user/graduation-upload", label: "Upload berkas wisuda" },
@@ -26,6 +26,18 @@ export const NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
   ],
 };
 
+// Route tasks add a path here only when its page exists in the app tree.
+export const IMPLEMENTED_PROTECTED_ROUTES: readonly string[] = [];
+
+export const NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
+  USER: PLANNED_NAVIGATION_BY_ROLE.USER.filter((item) =>
+    IMPLEMENTED_PROTECTED_ROUTES.includes(item.href),
+  ),
+  ADMIN: PLANNED_NAVIGATION_BY_ROLE.ADMIN.filter((item) =>
+    IMPLEMENTED_PROTECTED_ROUTES.includes(item.href),
+  ),
+};
+
 export interface SidebarProps {
   role: UserRole;
   activeRouteLabel: string;
@@ -33,6 +45,7 @@ export interface SidebarProps {
 
 export function Sidebar({ role, activeRouteLabel }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const navigationItems = NAVIGATION_BY_ROLE[role];
 
   return (
     <aside className="app-sidebar">
@@ -57,7 +70,7 @@ export function Sidebar({ role, activeRouteLabel }: SidebarProps) {
         data-mobile-open={isOpen}
       >
         <ul>
-          {NAVIGATION_BY_ROLE[role].map((item) => {
+          {navigationItems.map((item) => {
             const isActive = item.label === activeRouteLabel;
 
             return (

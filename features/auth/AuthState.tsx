@@ -6,12 +6,60 @@ import { AppShell } from "../../components/layout/AppShell";
 import { AsyncState } from "../../components/ui/AsyncState";
 import { Button } from "../../components/ui/Button";
 import { ApiClientError, request } from "../../lib/api-client";
-import type { AuthAdapter, AuthStateValue, AuthUser } from "./auth-types";
+import type { AuthAdapter, AuthStateValue, AuthUser, UserRole } from "./auth-types";
 
 export interface AuthStateProps {
   state: AuthStateValue;
   onSignOut: () => void | Promise<void>;
   children: ReactNode;
+}
+
+export function requiredRoleForPath(pathname: string): UserRole | null {
+  if (pathname.startsWith("/admin/")) return "ADMIN";
+  if (pathname.startsWith("/user/")) return "USER";
+  return null;
+}
+
+export function resolveAuthenticatedState(user: AuthUser, pathname: string): AuthStateValue {
+  const requiredRole = requiredRoleForPath(pathname);
+  return requiredRole && requiredRole !== user.role
+    ? { status: "forbidden" }
+    : { status: "authenticated", user };
+}
+
+export async function runSignOut(onSignOut: () => void | Promise<void>): Promise<string | null> {
+  try {
+    await onSignOut();
+    return null;
+  } catch (error) {
+    return error instanceof Error ? error.message : "Gagal keluar dari sistem.";
+  }
+}
+
+export function ForbiddenAuthState({
+  onSignOut,
+  signOutError: initialError = null,
+}: {
+  onSignOut: () => void | Promise<void>;
+  signOutError?: string | null;
+}) {
+  const [signOutError, setSignOutError] = useState<string | null>(initialError);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    setSignOutError(await runSignOut(onSignOut));
+    setIsSigningOut(false);
+  }
+
+  return (
+    <section className="auth-state" aria-labelledby="auth-forbidden-title">
+      <h1 id="auth-forbidden-title">Akses tidak diizinkan</h1>
+      <p>Peran akun ini tidak memiliki akses ke halaman tersebut.</p>
+      <Button variant="secondary" loading={isSigningOut} onClick={handleSignOut}>Keluar dari akun</Button>
+      {signOutError ? <p role="alert" className="auth-state__error">{signOutError}</p> : null}
+    </section>
+  );
 }
 
 export function AuthState({ state, onSignOut, children }: AuthStateProps) {
@@ -27,13 +75,7 @@ export function AuthState({ state, onSignOut, children }: AuthStateProps) {
         </section>
       );
     case "forbidden":
-      return (
-        <section className="auth-state" aria-labelledby="auth-forbidden-title">
-          <h1 id="auth-forbidden-title">Akses tidak diizinkan</h1>
-          <p>Peran akun ini tidak memiliki akses ke halaman tersebut.</p>
-          <Button variant="secondary" onClick={onSignOut}>Keluar dari akun</Button>
-        </section>
-      );
+      return <ForbiddenAuthState onSignOut={onSignOut} />;
     case "error":
       return <AsyncState variant="error" message={state.message} />;
     case "authenticated":
@@ -77,7 +119,7 @@ export function ProtectedAuthBoundary({
 
     adapter.getCurrentUser().then(
       (user) => {
-        if (isCurrent) setState({ status: "authenticated", user });
+        if (isCurrent) setState(resolveAuthenticatedState(user, pathname));
       },
       (error: unknown) => {
         if (!isCurrent) return;
@@ -94,7 +136,7 @@ export function ProtectedAuthBoundary({
     return () => {
       isCurrent = false;
     };
-  }, [adapter]);
+  }, [adapter, pathname]);
 
   async function handleSignOut() {
     await adapter.signOut();
