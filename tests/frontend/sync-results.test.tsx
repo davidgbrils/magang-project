@@ -6,6 +6,7 @@ import {
   getSyncJobPreview,
   getSyncJobRows,
   getOutputDownload,
+  normalizeSyncRowsResponse,
   reviewSyncRow,
   type SyncRow,
 } from "../../features/synchronization/synchronization-api";
@@ -35,6 +36,10 @@ describe("sync results API", () => {
     vi.stubGlobal("fetch", fetchMock);
     await getSyncJobRows("job/1", { status: "NEEDS_REVIEW", search: "Dina", page: 2, pageSize: 10 });
     expect(fetchMock).toHaveBeenCalledWith("/api/sync-jobs/job%2F1/rows?status=NEEDS_REVIEW&search=Dina&page=2&pageSize=10", expect.anything());
+  });
+
+  it("rejects the unspecified pagination payload at the API boundary", () => {
+    expect(() => normalizeSyncRowsResponse({ data: { items: [row] } })).toThrow("Format daftar baris");
   });
 
   it("loads preview changes and submits the exact review payload", async () => {
@@ -92,5 +97,16 @@ describe("sync results states and accessible review", () => {
     expect(empty).toContain("Belum ada output");
     expect(empty).toContain("Generate output");
     expect(empty).not.toContain("hasil-wisuda.xlsx");
+    const unavailable = renderToStaticMarkup(<SyncOutputPanel jobId="" output={null} />);
+    expect(unavailable).toContain("ID sinkronisasi belum tersedia");
+    expect(unavailable).not.toContain("Generate output");
+  });
+
+  it("renders a normal transient download link after authorization", () => {
+    const markup = renderToStaticMarkup(<SyncOutputPanel jobId="job-1" output={{ id: "output-1", status: "COMPLETED", fileName: "hasil.xlsx" }} authorizedDownload={{ url: "https://download.example/once", expiresAt: "2026-09-15T12:00:00Z" }} />);
+    expect(markup).toContain('href="https://download.example/once"');
+    expect(markup).toContain('target="_blank"');
+    expect(markup).toContain('rel="noopener noreferrer"');
+    expect(markup).not.toContain("window.open");
   });
 });

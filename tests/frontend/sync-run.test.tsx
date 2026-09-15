@@ -108,5 +108,13 @@ describe("reference selection and sync progress states", () => {
     expect(markup).toContain("Sinkronisasi selesai");
     expect(markup).toContain("100%");
     expect(markup).not.toContain("Hentikan pemantauan");
+    expect(markup).toContain("/user/synchronization/job-1/output");
+  });
+
+  it("gives a ready-for-review job direct preview and review actions", () => {
+    const ready: SyncJob = { ...queuedJob, status: "READY_FOR_REVIEW", currentStage: "Siap ditinjau", progress: 100, processedRows: 10, reviewCount: 2 };
+    const markup = renderToStaticMarkup(<SyncProgressPanel jobId="job-1" job={ready} />);
+    expect(markup).toContain("/user/synchronization/job-1/preview");
+    expect(markup).toContain("/user/synchronization/job-1/review");
   });
 });

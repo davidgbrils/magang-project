@@ -39,6 +39,8 @@ export type SyncRowStatus =
   | "EXCLUDED_MCF_PROGRAM"
   | "FAILED";
 
+const SYNC_ROW_STATUSES: readonly SyncRowStatus[] = ["READY", "NEEDS_REVIEW", "NOT_FOUND_IN_SITASI", "SITASI_NOT_GRADUATED", "CERTIPORT_NOT_FOUND", "DUPLICATE_NIM", "EXCLUDED_MCF_PROGRAM", "FAILED"];
+
 export type ReviewStatus = "CONFIRMED" | "REJECTED" | "SKIPPED";
 
 export type SyncRow = {
@@ -67,6 +69,32 @@ export type SyncRowsResponse = {
   total: number;
   totalPages?: number;
 };
+
+/**
+ * Boundary adapter for the PaginatedRows response.
+ * The backend OpenAPI currently names the response but does not define its
+ * JSON shape, so unknown payloads are rejected instead of being guessed.
+ */
+export function normalizeSyncRowsResponse(payload: unknown): SyncRowsResponse {
+  if (!payload || typeof payload !== "object") throw new Error("Format daftar baris dari server tidak dikenali.");
+  const value = payload as Record<string, unknown>;
+  if (!Array.isArray(value.items) || typeof value.page !== "number" || typeof value.pageSize !== "number" || typeof value.total !== "number") {
+    throw new Error("Format daftar baris dari server tidak dikenali.");
+  }
+  const validRows = value.items.every((item) => {
+    if (!item || typeof item !== "object") return false;
+    const row = item as Record<string, unknown>;
+    return typeof row.id === "string" && typeof row.sheetName === "string" && typeof row.sourceRow === "number" && typeof row.nim === "string" && typeof row.nama === "string" && typeof row.resultStatus === "string" && SYNC_ROW_STATUSES.includes(row.resultStatus as SyncRowStatus) && (typeof row.mosValue === "string" || row.mosValue === null) && (typeof row.titleValue === "string" || row.titleValue === null) && Array.isArray(row.reasonCodes) && row.reasonCodes.every((code) => typeof code === "string");
+  });
+  if (!validRows) throw new Error("Format baris sinkronisasi dari server tidak dikenali.");
+  return {
+    items: value.items as SyncRow[],
+    page: value.page,
+    pageSize: value.pageSize,
+    total: value.total,
+    ...(typeof value.totalPages === "number" ? { totalPages: value.totalPages } : {}),
+  };
+}
 
 export type SyncPreview = { changes: SyncRow[] };
 
@@ -125,7 +153,7 @@ export function getSyncJobRows(jobId: string, query: SyncRowsQuery = {}, signal?
   if (query.page !== undefined) params.set("page", String(query.page));
   if (query.pageSize !== undefined) params.set("pageSize", String(query.pageSize));
   const suffix = params.toString();
-  return request<SyncRowsResponse>(`/api/sync-jobs/${encodeURIComponent(jobId)}/rows${suffix ? `?${suffix}` : ""}`, { signal });
+  return request<unknown>(`/api/sync-jobs/${encodeURIComponent(jobId)}/rows${suffix ? `?${suffix}` : ""}`, { signal }).then(normalizeSyncRowsResponse);
 }
 
 export function getSyncJobPreview(jobId: string, signal?: AbortSignal): Promise<SyncPreview> {

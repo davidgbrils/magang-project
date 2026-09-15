@@ -543,6 +543,12 @@ form {
   box-shadow: var(--shadow-recessed);
 }
 
+.sync-progress__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
 .sync-results,
 .sync-output {
   display: grid;

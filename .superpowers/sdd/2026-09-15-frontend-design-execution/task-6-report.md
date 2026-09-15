@@ -27,3 +27,14 @@ The frontend was checked against the current read-only backend contract at `C:\U
 - `npm run lint` — pass
 - `npm test -- --run tests/frontend/sync-results.test.tsx` — 8/8 pass
 - `git diff --check` — pass (only unrelated CRLF conversion warnings from existing shared files)
+
+## Review fixes
+
+- Added an explicit `normalizeSyncRowsResponse` boundary. Because `PaginatedRows` remains unspecified in the backend OpenAPI, malformed or differently shaped payloads now fail with a user-facing error instead of being interpreted silently.
+- Added progress CTAs for `READY_FOR_REVIEW` and `COMPLETED` jobs to prevent a dead-end after processing.
+- Replaced production em-dash placeholders with Indonesian availability text.
+- Changed download handling to render a normal `target="_blank"` link only after authorization; the short-lived URL remains in component state and is never persisted.
+- Added Escape-to-close and Tab focus trapping to the review dialog.
+- Added an empty `jobId` guard to output so generation cannot run without an identifier.
+
+Review-fix focused verification: `npm test -- --run tests/frontend/sync-results.test.tsx tests/frontend/sync-run.test.tsx` — 21/21 pass.

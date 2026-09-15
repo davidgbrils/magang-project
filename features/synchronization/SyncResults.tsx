@@ -62,10 +62,10 @@ export function SyncRowsTable({ rows, onReview }: SyncRowsTableProps) {
             <td><code>{row.nim}</code></td>
             <td>{row.nama}</td>
             <td><StatusBadge tone={rowTone(row.resultStatus)} label={ROW_STATUS_LABELS[row.resultStatus]} /></td>
-            <td>{row.mosValue ?? "—"}</td>
-            <td>{row.titleValue ?? "—"}</td>
-            <td>{row.reasonCodes.length ? row.reasonCodes.join(", ") : "—"}</td>
-            <td>{onReview ? <Button variant="secondary" onClick={() => onReview(row)}>Review</Button> : "—"}</td>
+            <td>{row.mosValue ?? "Tidak tersedia"}</td>
+            <td>{row.titleValue ?? "Tidak tersedia"}</td>
+            <td>{row.reasonCodes.length ? row.reasonCodes.join(", ") : "Belum ada kode alasan"}</td>
+            <td>{onReview ? <Button variant="secondary" onClick={() => onReview(row)}>Review</Button> : "Tidak tersedia"}</td>
           </tr>
         ))}</tbody>
       </table>
@@ -181,6 +181,7 @@ export interface SyncReviewDialogProps {
 
 export function SyncReviewDialog({ row, onClose, onReviewed }: SyncReviewDialogProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
   const [decision, setDecision] = useState<ReviewStatus>("CONFIRMED");
   const [note, setNote] = useState("");
@@ -190,8 +191,19 @@ export function SyncReviewDialog({ row, onClose, onReviewed }: SyncReviewDialogP
   useEffect(() => {
     previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     closeButtonRef.current?.focus();
-    return () => previousFocus.current?.focus();
-  }, []);
+    function handleKeyboard(event: KeyboardEvent) {
+      if (event.key === "Escape") { event.preventDefault(); onClose(); return; }
+      if (event.key !== "Tab" || !dialogRef.current) return;
+      const focusable = Array.from(dialogRef.current.querySelectorAll<HTMLElement>("button, input, textarea, select, [href], [tabindex]:not([tabindex=\"-1\"])"));
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+    document.addEventListener("keydown", handleKeyboard);
+    return () => { document.removeEventListener("keydown", handleKeyboard); previousFocus.current?.focus(); };
+  }, [onClose]);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setState("pending"); setError(null);
@@ -199,7 +211,7 @@ export function SyncReviewDialog({ row, onClose, onReviewed }: SyncReviewDialogP
     catch (caughtError) { setError(apiMessage(caughtError, "Keputusan review gagal disimpan.")); setState("error"); }
   }
 
-  return <div className="sync-results__dialog-backdrop"><section className="sync-results__dialog" role="dialog" aria-modal="true" aria-labelledby="sync-review-title">
+  return <div className="sync-results__dialog-backdrop"><section ref={dialogRef} className="sync-results__dialog" role="dialog" aria-modal="true" aria-labelledby="sync-review-title" tabIndex={-1}>
     <button ref={closeButtonRef} type="button" className="sync-results__dialog-close" onClick={onClose}>Tutup review</button>
     <h2 id="sync-review-title">Review {row.nama}</h2><p><code>{row.nim}</code> · {ROW_STATUS_LABELS[row.resultStatus]}</p>
     <form onSubmit={submit}><fieldset><legend>Keputusan</legend>{(["CONFIRMED", "REJECTED", "SKIPPED"] as const).map((value) => <label key={value}><input type="radio" name="decision" value={value} checked={decision === value} onChange={() => setDecision(value)} /> {value === "CONFIRMED" ? "Konfirmasi" : value === "REJECTED" ? "Tolak" : "Lewati"}</label>)}</fieldset><label htmlFor="review-note">Catatan (opsional)</label><textarea id="review-note" maxLength={1000} value={note} onChange={(event) => setNote(event.target.value)} /><Button type="submit" loading={state === "pending"}>Simpan keputusan</Button>{state === "error" ? <p role="alert" className="sync-results__error">{error}</p> : null}</form>
@@ -209,11 +221,12 @@ export function SyncReviewDialog({ row, onClose, onReviewed }: SyncReviewDialogP
 export interface SyncOutputPanelProps {
   jobId: string;
   output?: GeneratedOutput | null;
+  authorizedDownload?: OutputDownload | null;
 }
 
-export function SyncOutputPanel({ jobId, output: suppliedOutput }: SyncOutputPanelProps) {
+export function SyncOutputPanel({ jobId, output: suppliedOutput, authorizedDownload: suppliedDownload }: SyncOutputPanelProps) {
   const [output, setOutput] = useState<GeneratedOutput | null>(suppliedOutput ?? null);
-  const [download, setDownload] = useState<OutputDownload | null>(null);
+  const [download, setDownload] = useState<OutputDownload | null>(suppliedDownload ?? null);
   const [state, setState] = useState<"idle" | "pending" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -230,9 +243,9 @@ export function SyncOutputPanel({ jobId, output: suppliedOutput }: SyncOutputPan
       const authorized = await getOutputDownload(output.id);
       setDownload(authorized);
       setState("idle");
-      window.open(authorized.url, "_blank", "noopener,noreferrer");
     } catch (caughtError) { setError(apiMessage(caughtError, "Link download gagal dibuat.")); setState("error"); }
   }
 
-  return <section className="sync-results sync-output" aria-labelledby="sync-output-title"><div className="sync-results__intro"><p className="graduation-upload__eyebrow">File keluaran</p><h1 id="sync-output-title">Output sinkronisasi</h1><p>File hanya dapat dibuat setelah keputusan review yang diwajibkan server selesai.</p></div>{!output ? <><AsyncState variant="empty" message="Belum ada output untuk sinkronisasi ini." /><Button onClick={() => void generate()} loading={state === "pending"}>Generate output</Button></> : <div className="sync-output__result"><StatusBadge tone={output.status === "COMPLETED" ? "success" : "warning"} label={output.status} /><p>{output.fileName}</p><Button onClick={() => void downloadOutput()} loading={state === "pending"}>Download output</Button>{download ? <p className="sync-output__expiry" role="status">Link sementara berlaku sampai {download.expiresAt}.</p> : null}</div>}{state === "error" ? <p role="alert" className="sync-results__error">{error}</p> : null}</section>;
+  if (!jobId.trim()) return <AsyncState variant="empty" message="ID sinkronisasi belum tersedia." />;
+  return <section className="sync-results sync-output" aria-labelledby="sync-output-title"><div className="sync-results__intro"><p className="graduation-upload__eyebrow">File keluaran</p><h1 id="sync-output-title">Output sinkronisasi</h1><p>File hanya dapat dibuat setelah keputusan review yang diwajibkan server selesai.</p></div>{!output ? <><AsyncState variant="empty" message="Belum ada output untuk sinkronisasi ini." /><Button onClick={() => void generate()} loading={state === "pending"}>Generate output</Button></> : <div className="sync-output__result"><StatusBadge tone={output.status === "COMPLETED" ? "success" : "warning"} label={output.status} /><p>{output.fileName}</p>{download ? <a className="graduation-upload__link" href={download.url} target="_blank" rel="noopener noreferrer">Download output</a> : <Button onClick={() => void downloadOutput()} loading={state === "pending"}>Minta link download</Button>}{download ? <p className="sync-output__expiry" role="status">Link sementara berlaku sampai {download.expiresAt}.</p> : null}</div>}{state === "error" ? <p role="alert" className="sync-results__error">{error}</p> : null}</section>;
 }
