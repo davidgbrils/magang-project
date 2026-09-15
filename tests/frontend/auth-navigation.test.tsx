@@ -13,7 +13,6 @@ import type { AuthUser } from "../../features/auth/auth-types";
 
 const plannedDestinations = [
   "/user/dashboard",
-  "/user/graduation-upload",
   "/user/reference-selection",
   "/admin/dashboard",
   "/admin/import/sitasi",

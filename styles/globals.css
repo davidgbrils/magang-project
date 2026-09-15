@@ -339,6 +339,128 @@ form {
   min-width: 0;
 }
 
+.graduation-upload,
+.validation-summary {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.graduation-upload__intro,
+.validation-summary__intro {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.graduation-upload__intro h1,
+.graduation-upload__intro p,
+.validation-summary__intro h1,
+.validation-summary__intro p,
+.validation-sheet p {
+  margin: 0;
+}
+
+.graduation-upload__eyebrow {
+  color: var(--color-text-secondary-accessible);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.graduation-upload__form {
+  width: 100%;
+  max-width: var(--form-max-width);
+  gap: var(--space-4);
+}
+
+.graduation-upload__dropzone {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-recessed);
+}
+
+.graduation-upload__dropzone input[type="file"] {
+  width: 100%;
+  min-height: var(--control-min-size);
+  padding: var(--space-2);
+  border: var(--border-structural);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-recessed);
+}
+
+.graduation-upload__hint,
+.graduation-upload__file {
+  margin: 0;
+  color: var(--color-text-secondary-accessible);
+  font-size: var(--font-size-sm);
+}
+
+.graduation-upload__file strong {
+  color: var(--color-text-main);
+}
+
+.graduation-upload__error {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.graduation-upload__result,
+.validation-summary__errors,
+.validation-sheet {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: var(--border-structural);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-recessed);
+}
+
+.graduation-upload__link {
+  width: fit-content;
+  min-height: var(--control-min-size);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-structural);
+  border-color: var(--color-primary);
+  border-radius: var(--radius-control);
+  color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.validation-summary__sheets {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.validation-sheet__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.validation-sheet__heading h2,
+.validation-summary__errors h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.validation-summary__errors {
+  color: var(--color-danger);
+}
+
+.validation-summary__errors ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-6);
+}
+
 .auth-state,
 .login-page {
   display: grid;
