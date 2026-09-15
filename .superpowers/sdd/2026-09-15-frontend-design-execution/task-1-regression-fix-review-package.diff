@@ -1,0 +1,103 @@
+diff --git a/.superpowers/sdd/2026-09-15-frontend-design-execution/task-1-report.md b/.superpowers/sdd/2026-09-15-frontend-design-execution/task-1-report.md
+index f13e5af..c50f501 100644
+--- a/.superpowers/sdd/2026-09-15-frontend-design-execution/task-1-report.md
++++ b/.superpowers/sdd/2026-09-15-frontend-design-execution/task-1-report.md
+@@ -8,6 +8,7 @@ Status: DONE
+ - Kept bearer authentication opt-in through `RequestOptions.accessToken`; requests without a supplied token do not receive an `Authorization` header.
+ - Parsed valid JSON bodies independently of `content-type`.
+ - Converted malformed, non-JSON, and empty non-2xx bodies to the typed `HTTP_ERROR` fallback instead of leaking a JSON parser error.
++- Rejected malformed JSON on a 2xx response with a clear `Error` instead of silently resolving `undefined`.
+ - Added focused tests for the common error envelope, a missing `content-type`, malformed and non-JSON errors, successful JSON, and token opt-in.
+ 
+ ## TDD evidence
+@@ -44,13 +45,40 @@ npm test -- tests/frontend/api-client.test.ts
+ 
+ Result: exit code 0. `tests/frontend/api-client.test.ts` passed, 6 of 6 tests green.
+ 
++### Regression RED: malformed JSON on 2xx
++
++Command:
++
++```text
++npm test -- tests/frontend/api-client.test.ts
++```
++
++Result: exit code 1. Vitest ran 7 tests: 1 failed and 6 passed.
++
++Expected failure:
++
++```text
++FAIL  tests/frontend/api-client.test.ts > request API error boundary > rejects malformed JSON from a successful response
++AssertionError: promise resolved "undefined" instead of rejecting
++```
++
++### Regression GREEN
++
++Command:
++
++```text
++npm test -- tests/frontend/api-client.test.ts
++```
++
++Result: exit code 0. `tests/frontend/api-client.test.ts` passed, 7 of 7 tests green.
++
+ ## Final verification
+ 
+ | Command | Result |
+ | --- | --- |
+ | `npm run lint` | PASS, exit code 0; ESLint completed without findings. |
+ | `npm run typecheck` | PASS, exit code 0; `tsc --noEmit` completed without diagnostics. |
+-| `npm test` | PASS, exit code 0; 1 test file and 6 tests passed. |
++| `npm test` | PASS, exit code 0; 1 test file and 7 tests passed. |
+ | `npm run build` | PASS, exit code 0; Next.js 15.5.3 compiled and generated 5 static pages, including `/` and `/login`. |
+ 
+ ## Concerns
+diff --git a/lib/api-client.ts b/lib/api-client.ts
+index a5318f3..161a41e 100644
+--- a/lib/api-client.ts
++++ b/lib/api-client.ts
+@@ -65,14 +65,16 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
+   const response = await fetch(getApiUrl(path), { ...init, headers: requestHeaders });
+   const rawBody = await response.text();
+   let body: unknown;
++  let hasInvalidJson = false;
+   if (rawBody.trim()) {
+     try {
+       body = JSON.parse(rawBody) as unknown;
+     } catch {
+-      body = undefined;
++      hasInvalidJson = true;
+     }
+   }
+ 
+   if (!response.ok) throw new ApiClientError(response.status, asApiError(body, response.status));
++  if (hasInvalidJson) throw new Error("Respons API tidak berisi JSON yang valid.");
+   return body as T;
+ }
+diff --git a/tests/frontend/api-client.test.ts b/tests/frontend/api-client.test.ts
+index c30ad16..6b87b5b 100644
+--- a/tests/frontend/api-client.test.ts
++++ b/tests/frontend/api-client.test.ts
+@@ -92,6 +92,22 @@ describe("request API error boundary", () => {
+     });
+   });
+ 
++  it("rejects malformed JSON from a successful response", async () => {
++    vi.stubGlobal(
++      "fetch",
++      vi.fn().mockResolvedValue(
++        new Response("{not-json", {
++          status: 200,
++          headers: { "content-type": "application/json" },
++        }),
++      ),
++    );
++
++    await expect(request("/api/me")).rejects.toThrow(
++      "Respons API tidak berisi JSON yang valid.",
++    );
++  });
++
+   it("adds authorization only when an access token is supplied", async () => {
+     vi.stubGlobal(
+       "fetch",

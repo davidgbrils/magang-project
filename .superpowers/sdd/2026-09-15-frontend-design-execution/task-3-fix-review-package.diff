@@ -1,0 +1,320 @@
+diff --git a/components/layout/Sidebar.tsx b/components/layout/Sidebar.tsx
+index ef8e40a..420be8c 100644
+--- a/components/layout/Sidebar.tsx
++++ b/components/layout/Sidebar.tsx
+@@ -9,7 +9,7 @@ type NavigationItem = {
+   label: string;
+ };
+ 
+-export const NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
++const PLANNED_NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
+   USER: [
+     { href: "/user/dashboard", label: "Dashboard operasional" },
+     { href: "/user/graduation-upload", label: "Upload berkas wisuda" },
+@@ -26,6 +26,18 @@ export const NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
+   ],
+ };
+ 
++// Route tasks add a path here only when its page exists in the app tree.
++export const IMPLEMENTED_PROTECTED_ROUTES: readonly string[] = [];
++
++export const NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
++  USER: PLANNED_NAVIGATION_BY_ROLE.USER.filter((item) =>
++    IMPLEMENTED_PROTECTED_ROUTES.includes(item.href),
++  ),
++  ADMIN: PLANNED_NAVIGATION_BY_ROLE.ADMIN.filter((item) =>
++    IMPLEMENTED_PROTECTED_ROUTES.includes(item.href),
++  ),
++};
++
+ export interface SidebarProps {
+   role: UserRole;
+   activeRouteLabel: string;
+@@ -33,6 +45,7 @@ export interface SidebarProps {
+ 
+ export function Sidebar({ role, activeRouteLabel }: SidebarProps) {
+   const [isOpen, setIsOpen] = useState(false);
++  const navigationItems = NAVIGATION_BY_ROLE[role];
+ 
+   return (
+     <aside className="app-sidebar">
+@@ -57,7 +70,7 @@ export function Sidebar({ role, activeRouteLabel }: SidebarProps) {
+         data-mobile-open={isOpen}
+       >
+         <ul>
+-          {NAVIGATION_BY_ROLE[role].map((item) => {
++          {navigationItems.map((item) => {
+             const isActive = item.label === activeRouteLabel;
+ 
+             return (
+diff --git a/features/auth/AuthState.tsx b/features/auth/AuthState.tsx
+index c097b93..d061c93 100644
+--- a/features/auth/AuthState.tsx
++++ b/features/auth/AuthState.tsx
+@@ -6,7 +6,7 @@ import { AppShell } from "../../components/layout/AppShell";
+ import { AsyncState } from "../../components/ui/AsyncState";
+ import { Button } from "../../components/ui/Button";
+ import { ApiClientError, request } from "../../lib/api-client";
+-import type { AuthAdapter, AuthStateValue, AuthUser } from "./auth-types";
++import type { AuthAdapter, AuthStateValue, AuthUser, UserRole } from "./auth-types";
+ 
+ export interface AuthStateProps {
+   state: AuthStateValue;
+@@ -14,6 +14,54 @@ export interface AuthStateProps {
+   children: ReactNode;
+ }
+ 
++export function requiredRoleForPath(pathname: string): UserRole | null {
++  if (pathname.startsWith("/admin/")) return "ADMIN";
++  if (pathname.startsWith("/user/")) return "USER";
++  return null;
++}
++
++export function resolveAuthenticatedState(user: AuthUser, pathname: string): AuthStateValue {
++  const requiredRole = requiredRoleForPath(pathname);
++  return requiredRole && requiredRole !== user.role
++    ? { status: "forbidden" }
++    : { status: "authenticated", user };
++}
++
++export async function runSignOut(onSignOut: () => void | Promise<void>): Promise<string | null> {
++  try {
++    await onSignOut();
++    return null;
++  } catch (error) {
++    return error instanceof Error ? error.message : "Gagal keluar dari sistem.";
++  }
++}
++
++export function ForbiddenAuthState({
++  onSignOut,
++  signOutError: initialError = null,
++}: {
++  onSignOut: () => void | Promise<void>;
++  signOutError?: string | null;
++}) {
++  const [signOutError, setSignOutError] = useState<string | null>(initialError);
++  const [isSigningOut, setIsSigningOut] = useState(false);
++
++  async function handleSignOut() {
++    setIsSigningOut(true);
++    setSignOutError(await runSignOut(onSignOut));
++    setIsSigningOut(false);
++  }
++
++  return (
++    <section className="auth-state" aria-labelledby="auth-forbidden-title">
++      <h1 id="auth-forbidden-title">Akses tidak diizinkan</h1>
++      <p>Peran akun ini tidak memiliki akses ke halaman tersebut.</p>
++      <Button variant="secondary" loading={isSigningOut} onClick={handleSignOut}>Keluar dari akun</Button>
++      {signOutError ? <p role="alert" className="auth-state__error">{signOutError}</p> : null}
++    </section>
++  );
++}
++
+ export function AuthState({ state, onSignOut, children }: AuthStateProps) {
+   switch (state.status) {
+     case "loading":
+@@ -27,13 +75,7 @@ export function AuthState({ state, onSignOut, children }: AuthStateProps) {
+         </section>
+       );
+     case "forbidden":
+-      return (
+-        <section className="auth-state" aria-labelledby="auth-forbidden-title">
+-          <h1 id="auth-forbidden-title">Akses tidak diizinkan</h1>
+-          <p>Peran akun ini tidak memiliki akses ke halaman tersebut.</p>
+-          <Button variant="secondary" onClick={onSignOut}>Keluar dari akun</Button>
+-        </section>
+-      );
++      return <ForbiddenAuthState onSignOut={onSignOut} />;
+     case "error":
+       return <AsyncState variant="error" message={state.message} />;
+     case "authenticated":
+@@ -77,7 +119,7 @@ export function ProtectedAuthBoundary({
+ 
+     adapter.getCurrentUser().then(
+       (user) => {
+-        if (isCurrent) setState({ status: "authenticated", user });
++        if (isCurrent) setState(resolveAuthenticatedState(user, pathname));
+       },
+       (error: unknown) => {
+         if (!isCurrent) return;
+@@ -94,7 +136,7 @@ export function ProtectedAuthBoundary({
+     return () => {
+       isCurrent = false;
+     };
+-  }, [adapter]);
++  }, [adapter, pathname]);
+ 
+   async function handleSignOut() {
+     await adapter.signOut();
+diff --git a/styles/globals.css b/styles/globals.css
+index fcf4af3..6c7b2a8 100644
+--- a/styles/globals.css
++++ b/styles/globals.css
+@@ -376,6 +376,11 @@ form {
+   color: var(--color-danger);
+ }
+ 
++.auth-state__error {
++  margin: 0;
++  color: var(--color-danger);
++}
++
+ @media (hover: hover) and (pointer: fine) {
+   .app-sidebar__navigation a:hover,
+   .auth-state__link:hover {
+diff --git a/tests/frontend/auth-navigation.test.tsx b/tests/frontend/auth-navigation.test.tsx
+index a7a95b7..d0f9a1b 100644
+--- a/tests/frontend/auth-navigation.test.tsx
++++ b/tests/frontend/auth-navigation.test.tsx
+@@ -3,15 +3,18 @@ import { renderToStaticMarkup } from "react-dom/server";
+ import { describe, expect, it, vi } from "vitest";
+ import { AppShell } from "../../components/layout/AppShell";
+ import { Sidebar } from "../../components/layout/Sidebar";
+-import { AuthState } from "../../features/auth/AuthState";
++import {
++  AuthState,
++  ForbiddenAuthState,
++  resolveAuthenticatedState,
++  runSignOut,
++} from "../../features/auth/AuthState";
++import type { AuthUser } from "../../features/auth/auth-types";
+ 
+-const userDestinations = [
++const plannedDestinations = [
+   "/user/dashboard",
+   "/user/graduation-upload",
+   "/user/reference-selection",
+-];
+-
+-const adminDestinations = [
+   "/admin/dashboard",
+   "/admin/import/sitasi",
+   "/admin/import/certiport",
+@@ -21,32 +24,34 @@ const adminDestinations = [
+   "/admin/audit-logs",
+ ];
+ 
+-describe("role-aware navigation", () => {
+-  it("renders only USER destinations for an operator", () => {
+-    const markup = renderToStaticMarkup(
+-      <Sidebar role="USER" activeRouteLabel="Dashboard operasional" />,
+-    );
++const user: AuthUser = {
++  id: "user-1",
++  email: "operator@example.test",
++  displayName: "Operator",
++  role: "USER",
++};
+ 
+-    for (const destination of userDestinations) {
+-      expect(markup).toContain(`href="${destination}"`);
+-    }
+-    for (const destination of adminDestinations) {
+-      expect(markup).not.toContain(`href="${destination}"`);
+-    }
+-  });
++const admin: AuthUser = {
++  id: "admin-1",
++  email: "admin@example.test",
++  displayName: "Administrator",
++  role: "ADMIN",
++};
+ 
+-  it("renders every confirmed ADMIN destination without USER destinations", () => {
+-    const markup = renderToStaticMarkup(
+-      <Sidebar role="ADMIN" activeRouteLabel="Dashboard administrator" />,
+-    );
++describe("role-aware navigation", () => {
++  it.each(["USER", "ADMIN"] as const)(
++    "does not render planned %s navigation before those pages exist",
++    (role) => {
++      const markup = renderToStaticMarkup(
++        <Sidebar role={role} activeRouteLabel="Workspace terlindungi" />,
++      );
+ 
+-    for (const destination of adminDestinations) {
+-      expect(markup).toContain(`href="${destination}"`);
+-    }
+-    for (const destination of userDestinations) {
+-      expect(markup).not.toContain(`href="${destination}"`);
+-    }
+-  });
++      for (const destination of plannedDestinations) {
++        expect(markup).not.toContain(`href="${destination}"`);
++      }
++      expect(markup).toContain('aria-label="Navigasi utama"');
++    },
++  );
+ 
+   it("does not expose protected children or admin navigation in a forbidden state", () => {
+     const markup = renderToStaticMarkup(
+@@ -61,23 +66,38 @@ describe("role-aware navigation", () => {
+ 
+   it("keeps the current role visible in the authenticated shell", () => {
+     const markup = renderToStaticMarkup(
+-      <AppShell
+-        role="USER"
+-        activeRouteLabel="Dashboard operasional"
+-        onSignOut={vi.fn()}
+-      >
++      <AppShell role="USER" activeRouteLabel="Workspace terlindungi" onSignOut={vi.fn()}>
+         <p>Konten utama</p>
+       </AppShell>,
+     );
+ 
+     expect(markup).toContain("Peran saat ini");
+     expect(markup).toContain("User");
+-    expect(markup).toContain("Dashboard operasional");
++    expect(markup).toContain("Workspace terlindungi");
+   });
+ 
+-  it("uses a labelled button and native navigation semantics for the mobile menu", () => {
++  it("forbids a USER session on an admin pathname", () => {
++    expect(resolveAuthenticatedState(user, "/admin/dashboard")).toEqual({
++      status: "forbidden",
++    });
++  });
++
++  it("forbids an ADMIN session on a user pathname", () => {
++    expect(resolveAuthenticatedState(admin, "/user/dashboard")).toEqual({
++      status: "forbidden",
++    });
++  });
++
++  it("keeps a matching role authenticated", () => {
++    expect(resolveAuthenticatedState(user, "/user/dashboard")).toEqual({
++      status: "authenticated",
++      user,
++    });
++  });
++
++  it("keeps the mobile menu labelled even when no feature links are implemented", () => {
+     const markup = renderToStaticMarkup(
+-      <Sidebar role="USER" activeRouteLabel="Dashboard operasional" />,
++      <Sidebar role="USER" activeRouteLabel="Workspace terlindungi" />,
+     );
+ 
+     expect(markup).toContain('<button type="button"');
+@@ -85,6 +105,19 @@ describe("role-aware navigation", () => {
+     expect(markup).toContain('aria-expanded="false"');
+     expect(markup).toContain("Buka menu navigasi");
+     expect(markup).toContain('<nav id="app-navigation" aria-label="Navigasi utama"');
+-    expect(markup).toMatch(/<a[^>]+href="\/user\/dashboard"/);
++  });
++
++  it("returns a perceivable error message when forbidden sign-out rejects", async () => {
++    const result = await runSignOut(() => Promise.reject(new Error("Session provider gagal.")));
++
++    expect(result).toBe("Session provider gagal.");
++    const markup = renderToStaticMarkup(
++      <ForbiddenAuthState
++        onSignOut={vi.fn()}
++        signOutError={result}
++      />,
++    );
++    expect(markup).toContain('role="alert"');
++    expect(markup).toContain("Session provider gagal.");
+   });
+ });

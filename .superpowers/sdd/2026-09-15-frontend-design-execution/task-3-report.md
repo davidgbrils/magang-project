@@ -7,6 +7,9 @@
 - Menambahkan boundary auth client-side yang hanya mengenal endpoint terdokumentasi `GET /api/me` dan menerima auth adapter melalui props.
 - Login dan sign-out memakai callback adapter eksplisit. Implementasi default tidak menyimpan token dan tidak mengklaim autentikasi berhasil saat provider Supabase belum dipasang.
 - Menambahkan mobile menu berlabel, native link navigation, `aria-expanded`, `aria-controls`, `aria-current`, serta target kontrol minimal 44px.
+- Menambahkan guard pathname: akun `USER` tidak dapat membuka `/admin/*`, dan akun `ADMIN` tidak dapat membuka `/user/*` meskipun URL dibuka langsung.
+- Sidebar memakai registry `IMPLEMENTED_PROTECTED_ROUTES`; route baru menjadi link hanya setelah page nyata tersedia, sehingga tidak ada dead link.
+- Kegagalan sign-out pada state forbidden ditangkap dan ditampilkan sebagai alert yang terlihat.
 - `app/page.tsx` tidak diubah dan tetap hanya menautkan `/login`.
 
 ## Bukti TDD
@@ -52,7 +55,7 @@ Build sempat menangkap dua boundary Next.js dan keduanya diperbaiki: named expor
 - Accessibility PASS pada struktur otomatis: label input, live error, native links/buttons, menu label, expanded state, active-page state, visible global focus ring, dan 44px control minimum.
 - Responsive PASS pada source: menu mobile terpisah dari sidebar desktop, breakpoint tablet/desktop berbasis reflow, `minmax(0, 1fr)`, serta tidak ada fixed bottom navigation yang menutupi konten.
 
-Browser click-through dan visual comparison lintas viewport belum dijalankan karena Task 3 tidak menyediakan Playwright/browser harness; pemeriksaan visual penuh tetap menjadi gate Task 9. Karena route feature Task 4-8 belum dibuat, link shell mengikuti exact route map Task 3 tetapi halaman tujuan akan tersedia pada task berikutnya.
+Browser click-through dan visual comparison lintas viewport belum dijalankan karena Task 3 tidak menyediakan Playwright/browser harness; pemeriksaan visual penuh tetap menjadi gate Task 9. Karena route feature Task 4-8 belum dibuat, registry navigasi masih kosong sampai page nyata ditambahkan.
 
 ## Batas integrasi auth
 
