@@ -22,6 +22,12 @@ GREEN: focused suite lulus 9/9.
 - `git diff --check` — PASS sebelum commit
 - `npm run build` — terblokir `ENOSPC: no space left on device` saat Next.js menulis cache webpack; bukan error compile yang terobservasi.
 
+## Review follow-up
+
+- `ReferenceBatch.isActive` sekarang opsional sesuai schema OpenAPI; active endpoint tetap dipercaya aktif, sementara nilai eksplisit `false` tetap ditolak.
+- Retry pada status `FAILED` sekarang berupa button yang mereset state, membatalkan siklus lama, dan memulai GET status ulang melalui polling.
+- Regression suite setelah perbaikan: 10/10.
+
 ## Batasan kontrak
 
 Endpoint daftar batch inactive tidak digunakan karena schema pagination/field pilihan pada OpenAPI backend belum lengkap. Tidak ada fixture atau ID dummy yang ditambahkan ke production UI.

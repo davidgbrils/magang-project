@@ -7,7 +7,7 @@ export type ReferenceBatch = {
   sourceType: ReferenceBatchSource;
   period?: string;
   status: string;
-  isActive: boolean;
+  isActive?: boolean;
 };
 
 export type ActiveReferenceBatches = {

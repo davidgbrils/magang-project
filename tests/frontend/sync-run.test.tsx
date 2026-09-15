@@ -74,6 +74,16 @@ describe("reference selection and sync progress states", () => {
     expect(markup).toContain("Pilihan batch belum tersedia");
   });
 
+  it("accepts active endpoint batches when the optional isActive field is omitted", () => {
+    const serverActive = {
+      sitasi: { id: "sitasi-2", sourceType: "SITASI", period: "2026-10", status: "ACTIVE" },
+      certiport: { id: "certiport-2", sourceType: "CERTIPORT", period: "2026-10", status: "ACTIVE" },
+    } as ActiveReferenceBatches;
+    const markup = renderToStaticMarkup(<ReferenceSelectionPanel uploadId="upload-1" activeBatches={serverActive} />);
+    expect(markup).toContain("sitasi-2");
+    expect(markup).toContain("certiport-2");
+  });
+
   it("renders queued and processing progress with live text", () => {
     const processing: SyncJob = { ...queuedJob, status: "PROCESSING", currentStage: "Mencocokkan data", progress: 42, processedRows: 4 };
     const markup = renderToStaticMarkup(<SyncProgressPanel jobId="job-1" job={processing} />);
@@ -83,12 +93,13 @@ describe("reference selection and sync progress states", () => {
     expect(markup).toContain("Hentikan pemantauan");
   });
 
-  it("renders a terminal failure with a working retry link", () => {
+  it("renders a terminal failure with a working retry button", () => {
     const failed: SyncJob = { ...queuedJob, status: "FAILED", currentStage: "Sinkronisasi gagal", progress: 32, failedCount: 2 };
     const markup = renderToStaticMarkup(<SyncProgressPanel jobId="job-1" job={failed} />);
     expect(markup).toContain("Sinkronisasi gagal");
     expect(markup).toContain("Coba pantau ulang");
-    expect(markup).toContain("/user/synchronization/job-1/progress");
+    expect(markup).toContain('type="button"');
+    expect(markup).not.toContain("/user/synchronization/job-1/progress");
   });
 
   it("renders completed state as terminal success", () => {
