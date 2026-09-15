@@ -13,7 +13,6 @@ import type { AuthUser } from "../../features/auth/auth-types";
 
 const plannedDestinations = [
   "/user/dashboard",
-  "/user/reference-selection",
   "/admin/dashboard",
   "/admin/import/sitasi",
   "/admin/import/certiport",
@@ -47,6 +46,10 @@ describe("role-aware navigation", () => {
 
       for (const destination of plannedDestinations) {
         expect(markup).not.toContain(`href="${destination}"`);
+      }
+      if (role === "USER") {
+        expect(markup).toContain('href="/user/graduation-upload"');
+        expect(markup).toContain('href="/user/reference-selection"');
       }
       expect(markup).toContain('aria-label="Navigasi utama"');
     },
