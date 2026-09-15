@@ -1,14 +1,18 @@
+"use client";
+
+import React from "react";
+import { LoginForm } from "../../features/auth/LoginForm";
+import type { LoginAdapter } from "../../features/auth/auth-types";
+
+const missingLoginProvider: LoginAdapter = () =>
+  Promise.reject(new Error("Penyedia login belum dikonfigurasi."));
+
 export default function LoginPage() {
   return (
-    <main>
+    <main className="login-page">
       <h1>Masuk ke ITCC Wisuda Sync</h1>
-      <form>
-        <label htmlFor="email">Email ITCC</label>
-        <input id="email" name="email" type="email" autoComplete="email" required />
-        <label htmlFor="password">Kata sandi</label>
-        <input id="password" name="password" type="password" autoComplete="current-password" required />
-        <button type="submit">Masuk</button>
-      </form>
+      <p>Gunakan akun yang telah diberi akses oleh administrator ITCC.</p>
+      <LoginForm onLogin={missingLoginProvider} />
     </main>
   );
 }
