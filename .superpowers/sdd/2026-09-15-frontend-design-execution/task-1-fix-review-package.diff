@@ -1,0 +1,175 @@
+diff --git a/.superpowers/sdd/2026-09-15-frontend-design-execution/task-1-report.md b/.superpowers/sdd/2026-09-15-frontend-design-execution/task-1-report.md
+new file mode 100644
+index 0000000..f13e5af
+--- /dev/null
++++ b/.superpowers/sdd/2026-09-15-frontend-design-execution/task-1-report.md
+@@ -0,0 +1,58 @@
++# Task 1 Report
++
++Status: DONE
++
++## Scope
++
++- Added the typed `ApiError` and `ApiClientError` boundary in `lib/api-client.ts`.
++- Kept bearer authentication opt-in through `RequestOptions.accessToken`; requests without a supplied token do not receive an `Authorization` header.
++- Parsed valid JSON bodies independently of `content-type`.
++- Converted malformed, non-JSON, and empty non-2xx bodies to the typed `HTTP_ERROR` fallback instead of leaking a JSON parser error.
++- Added focused tests for the common error envelope, a missing `content-type`, malformed and non-JSON errors, successful JSON, and token opt-in.
++
++## TDD evidence
++
++### RED
++
++Command:
++
++```text
++npm test -- tests/frontend/api-client.test.ts
++```
++
++Result: exit code 1. Vitest ran 6 tests: 2 failed and 4 passed.
++
++Expected failures:
++
++```text
++FAIL  tests/frontend/api-client.test.ts > request API error boundary > parses a JSON error envelope even when content type is missing
++Expected code/message: FORBIDDEN / Akses ditolak.
++Received code/message: HTTP_ERROR / Permintaan gagal (403).
++
++FAIL  tests/frontend/api-client.test.ts > request API error boundary > keeps malformed JSON errors inside ApiClientError
++Expected: ApiClientError with status 502 and code HTTP_ERROR.
++Received: SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2).
++```
++
++### GREEN
++
++Command:
++
++```text
++npm test -- tests/frontend/api-client.test.ts
++```
++
++Result: exit code 0. `tests/frontend/api-client.test.ts` passed, 6 of 6 tests green.
++
++## Final verification
++
++| Command | Result |
++| --- | --- |
++| `npm run lint` | PASS, exit code 0; ESLint completed without findings. |
++| `npm run typecheck` | PASS, exit code 0; `tsc --noEmit` completed without diagnostics. |
++| `npm test` | PASS, exit code 0; 1 test file and 6 tests passed. |
++| `npm run build` | PASS, exit code 0; Next.js 15.5.3 compiled and generated 5 static pages, including `/` and `/login`. |
++
++## Concerns
++
++None within Task 1 scope.
+diff --git a/lib/api-client.ts b/lib/api-client.ts
+index efc277b..a5318f3 100644
+--- a/lib/api-client.ts
++++ b/lib/api-client.ts
+@@ -63,8 +63,15 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
+   if (accessToken) requestHeaders.set("Authorization", `Bearer ${accessToken}`);
+ 
+   const response = await fetch(getApiUrl(path), { ...init, headers: requestHeaders });
+-  const contentType = response.headers.get("content-type") ?? "";
+-  const body: unknown = contentType.includes("application/json") ? await response.json() : undefined;
++  const rawBody = await response.text();
++  let body: unknown;
++  if (rawBody.trim()) {
++    try {
++      body = JSON.parse(rawBody) as unknown;
++    } catch {
++      body = undefined;
++    }
++  }
+ 
+   if (!response.ok) throw new ApiClientError(response.status, asApiError(body, response.status));
+   return body as T;
+diff --git a/tests/frontend/api-client.test.ts b/tests/frontend/api-client.test.ts
+index ff9d49e..c30ad16 100644
+--- a/tests/frontend/api-client.test.ts
++++ b/tests/frontend/api-client.test.ts
+@@ -2,7 +2,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
+ import { ApiClientError, request } from "../../lib/api-client";
+ 
+ describe("request API error boundary", () => {
+-  afterEach(() => vi.restoreAllMocks());
++  afterEach(() => {
++    vi.restoreAllMocks();
++    vi.unstubAllEnvs();
++    vi.unstubAllGlobals();
++  });
+ 
+   it("parses the common API error envelope into a typed error", async () => {
+     vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "https://api.example.test");
+@@ -38,4 +42,71 @@ describe("request API error boundary", () => {
+       status: 422,
+     });
+   });
++
++  it("parses a JSON error envelope even when content type is missing", async () => {
++    vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "https://api.example.test");
++    vi.stubGlobal(
++      "fetch",
++      vi.fn().mockResolvedValue(
++        new Response(JSON.stringify({ error: { code: "FORBIDDEN", message: "Akses ditolak." } }), {
++          status: 403,
++        }),
++      ),
++    );
++
++    await expect(request("/api/me")).rejects.toMatchObject({
++      status: 403,
++      apiError: { error: { code: "FORBIDDEN", message: "Akses ditolak." } },
++    });
++  });
++
++  it.each([
++    ["malformed JSON", "{not-json", { "content-type": "application/json" }],
++    ["non-JSON", "gateway unavailable", { "content-type": "text/plain" }],
++  ])("keeps %s errors inside ApiClientError", async (_case, body, headers) => {
++    vi.stubGlobal(
++      "fetch",
++      vi.fn().mockResolvedValue(new Response(body, { status: 502, headers })),
++    );
++
++    await expect(request("/api/me")).rejects.toMatchObject({
++      name: "ApiClientError",
++      status: 502,
++      apiError: { error: { code: "HTTP_ERROR" } },
++    });
++  });
++
++  it("returns a successful JSON response", async () => {
++    vi.stubGlobal(
++      "fetch",
++      vi.fn().mockResolvedValue(
++        new Response(JSON.stringify({ id: "batch-123", status: "ready" }), {
++          headers: { "content-type": "application/json" },
++        }),
++      ),
++    );
++
++    await expect(request<{ id: string; status: string }>("/api/batches/batch-123")).resolves.toEqual({
++      id: "batch-123",
++      status: "ready",
++    });
++  });
++
++  it("adds authorization only when an access token is supplied", async () => {
++    vi.stubGlobal(
++      "fetch",
++      vi.fn().mockImplementation(() =>
++        Promise.resolve(new Response(JSON.stringify({ ok: true }))),
++      ),
++    );
++
++    await request("/api/me");
++    expect(vi.mocked(fetch).mock.calls[0]?.[1]).toMatchObject({ headers: expect.any(Headers) });
++    expect(new Headers(vi.mocked(fetch).mock.calls[0]?.[1]?.headers).get("Authorization")).toBeNull();
++
++    await request("/api/me", { accessToken: "test-token" });
++    expect(new Headers(vi.mocked(fetch).mock.calls[1]?.[1]?.headers).get("Authorization")).toBe(
++      "Bearer test-token",
++    );
++  });
+ });

@@ -1,0 +1,440 @@
+diff --git a/app/(protected)/user/file-validation/page.tsx b/app/(protected)/user/file-validation/page.tsx
+new file mode 100644
+index 0000000..335783a
+--- /dev/null
++++ b/app/(protected)/user/file-validation/page.tsx
+@@ -0,0 +1,19 @@
++"use client";
++
++import { useSearchParams } from "next/navigation";
++import React, { Suspense } from "react";
++import { AsyncState } from "../../../../components/ui/AsyncState";
++import { FileValidationView } from "../../../../features/graduation/GraduationUpload";
++
++function FileValidationContent() {
++  const searchParams = useSearchParams();
++  return <FileValidationView uploadId={searchParams.get("uploadId")} />;
++}
++
++export default function FileValidationPage() {
++  return (
++    <Suspense fallback={<AsyncState variant="loading" message="Halaman validasi sedang dimuat." />}>
++      <FileValidationContent />
++    </Suspense>
++  );
++}
+diff --git a/app/(protected)/user/graduation-upload/page.tsx b/app/(protected)/user/graduation-upload/page.tsx
+new file mode 100644
+index 0000000..6cccc86
+--- /dev/null
++++ b/app/(protected)/user/graduation-upload/page.tsx
+@@ -0,0 +1,5 @@
++import { GraduationUploadPanel } from "../../../../features/graduation/GraduationUpload";
++
++export default function GraduationUploadPage() {
++  return <GraduationUploadPanel />;
++}
+diff --git a/components/layout/Sidebar.tsx b/components/layout/Sidebar.tsx
+index 420be8c..77fbced 100644
+--- a/components/layout/Sidebar.tsx
++++ b/components/layout/Sidebar.tsx
+@@ -27,7 +27,10 @@ const PLANNED_NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> =
+ };
+ 
+ // Route tasks add a path here only when its page exists in the app tree.
+-export const IMPLEMENTED_PROTECTED_ROUTES: readonly string[] = [];
++export const IMPLEMENTED_PROTECTED_ROUTES: readonly string[] = [
++  "/user/graduation-upload",
++  "/user/file-validation",
++];
+ 
+ export const NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
+   USER: PLANNED_NAVIGATION_BY_ROLE.USER.filter((item) =>
+diff --git a/features/graduation/GraduationUpload.tsx b/features/graduation/GraduationUpload.tsx
+new file mode 100644
+index 0000000..98d6345
+--- /dev/null
++++ b/features/graduation/GraduationUpload.tsx
+@@ -0,0 +1,142 @@
++"use client";
++
++import Link from "next/link";
++import React, { useRef, useState, type ChangeEvent, type DragEvent } from "react";
++import { AsyncState } from "../../components/ui/AsyncState";
++import { Button } from "../../components/ui/Button";
++import { StatusBadge } from "../../components/ui/StatusBadge";
++import { ApiClientError } from "../../lib/api-client";
++import { getValidationReport, isAcceptedWorkbookFile, uploadGraduationWorkbook, type GraduationUpload, type ValidationReport } from "./graduation-api";
++
++function formatFileSize(bytes: number): string {
++  if (bytes < 1024) return `${bytes} B`;
++  return `${(bytes / 1024).toFixed(1)} KB`;
++}
++
++function uploadStatusLabel(status: GraduationUpload["status"]): string {
++  return { UPLOADED: "Berkas diterima", VALIDATING: "Sedang divalidasi", VALID: "Berkas valid", INVALID: "Berkas perlu diperbaiki", FAILED: "Upload gagal" }[status];
++}
++
++export function GraduationUploadPanel({ upload: initialUpload }: { upload?: GraduationUpload | null }) {
++  const [selectedFile, setSelectedFile] = useState<File | null>(null);
++  const [upload, setUpload] = useState<GraduationUpload | null>(initialUpload ?? null);
++  const [error, setError] = useState<string | null>(null);
++  const [isPending, setIsPending] = useState(false);
++  const inputRef = useRef<HTMLInputElement>(null);
++
++  function selectFile(file: File | undefined) {
++    if (!file) return;
++    setError(null);
++    if (!isAcceptedWorkbookFile(file)) {
++      setSelectedFile(null);
++      setError("Format berkas tidak didukung. Pilih workbook .xlsx.");
++      return;
++    }
++    setSelectedFile(file);
++  }
++
++  function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
++    selectFile(event.target.files?.[0]);
++  }
++
++  function handleDrop(event: DragEvent<HTMLDivElement>) {
++    event.preventDefault();
++    selectFile(event.dataTransfer.files[0]);
++  }
++
++  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
++    event.preventDefault();
++    if (!selectedFile) {
++      setError("Pilih berkas .xlsx sebelum mengirim.");
++      inputRef.current?.focus();
++      return;
++    }
++    setIsPending(true);
++    setError(null);
++    try {
++      setUpload(await uploadGraduationWorkbook(selectedFile));
++    } catch (caughtError) {
++      const message = caughtError instanceof ApiClientError ? caughtError.message : "Upload berkas gagal. Periksa koneksi lalu coba lagi.";
++      setError(message);
++    } finally {
++      setIsPending(false);
++    }
++  }
++
++  return (
++    <section className="graduation-upload" aria-labelledby="graduation-upload-title">
++      <div className="graduation-upload__intro">
++        <p className="graduation-upload__eyebrow">Persiapan sinkronisasi</p>
++        <h1 id="graduation-upload-title">Upload berkas wisuda</h1>
++        <p>Pilih workbook wisuda berformat XLSX untuk memulai pemeriksaan struktur dan kolom.</p>
++      </div>
++      <form className="graduation-upload__form" onSubmit={handleSubmit}>
++        <div className="graduation-upload__dropzone" onDragOver={(event) => event.preventDefault()} onDrop={handleDrop}>
++          <label htmlFor="graduation-workbook">Berkas workbook wisuda (.xlsx)</label>
++          <input ref={inputRef} id="graduation-workbook" name="file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={handleInputChange} />
++          <p className="graduation-upload__hint">Seret berkas ke area ini atau pilih dari perangkat.</p>
++          {selectedFile ? <p className="graduation-upload__file" aria-live="polite"><strong>{selectedFile.name}</strong> · {formatFileSize(selectedFile.size)}</p> : null}
++        </div>
++        {error ? <p className="graduation-upload__error" role="alert">{error}</p> : null}
++        <Button type="submit" loading={isPending} disabled={!selectedFile && !isPending}>Kirim berkas</Button>
++      </form>
++      {upload ? (
++        <div className="graduation-upload__result" aria-live="polite">
++          <StatusBadge tone={upload.status === "VALID" ? "success" : upload.status === "FAILED" || upload.status === "INVALID" ? "danger" : "warning"} label={uploadStatusLabel(upload.status)} />
++          {upload.status === "VALIDATING" ? <p>Validasi sedang diproses. Buka hasil validasi untuk melihat pembaruan.</p> : null}
++          <p>{upload.sheetCount} sheet terdeteksi pada berkas.</p>
++          {upload.studentCount !== undefined ? <p>{upload.studentCount} baris wisudawan terdeteksi.</p> : null}
++          <Link className="graduation-upload__link" href={`/user/file-validation?uploadId=${encodeURIComponent(upload.id)}`}>Buka hasil validasi</Link>
++        </div>
++      ) : null}
++    </section>
++  );
++}
++
++export function ValidationSummary({ report }: { report: ValidationReport }) {
++  return (
++    <section className="validation-summary" aria-labelledby="validation-summary-title">
++      <div className="validation-summary__intro">
++        <p className="graduation-upload__eyebrow">Pemeriksaan workbook</p>
++        <h1 id="validation-summary-title">Validasi file wisuda</h1>
++        <StatusBadge tone={report.status === "VALID" ? "success" : "danger"} label={report.status} />
++        <p aria-live="polite">{report.sheets.length} sheet ditemukan dari respons server.</p>
++      </div>
++      {report.sheets.length ? (
++        <div className="validation-summary__sheets">
++          {report.sheets.map((sheet) => (
++            <article className="validation-sheet" key={sheet.name}>
++              <div className="validation-sheet__heading">
++                <h2>{sheet.name}</h2>
++                {sheet.status ? <StatusBadge tone={sheet.status === "VALID" ? "success" : "danger"} label={sheet.status} /> : null}
++              </div>
++              {sheet.rowCount !== undefined ? <p>{sheet.rowCount} baris</p> : null}
++              {sheet.columns?.length ? <p>Kolom terdeteksi: {sheet.columns.join(", ")}</p> : null}
++            </article>
++          ))}
++        </div>
++      ) : <AsyncState variant="empty" message="Server belum mengirimkan ringkasan sheet." />}
++      {report.errors.length ? <div className="validation-summary__errors" role="alert" aria-labelledby="validation-errors-title"><h2 id="validation-errors-title">Perlu diperbaiki</h2><ul>{report.errors.map((error) => <li key={error}>{error}</li>)}</ul></div> : null}
++    </section>
++  );
++}
++
++export function FileValidationView({ uploadId }: { uploadId: string | null }) {
++  const [state, setState] = useState<"loading" | "ready" | "empty" | "error">(uploadId ? "loading" : "empty");
++  const [report, setReport] = useState<ValidationReport | null>(null);
++
++  React.useEffect(() => {
++    if (!uploadId) return;
++    let current = true;
++    getValidationReport(uploadId).then(
++      (nextReport) => { if (current) { setReport(nextReport); setState("ready"); } },
++      () => { if (current) setState("error"); },
++    );
++    return () => { current = false; };
++  }, [uploadId]);
++
++  if (state === "empty") return <AsyncState variant="empty" message="ID upload belum tersedia. Buka halaman ini dari hasil upload." action={<Link className="graduation-upload__link" href="/user/graduation-upload">Kembali ke upload</Link>} />;
++  if (state === "loading") return <AsyncState variant="loading" message="Ringkasan validasi sedang dimuat." />;
++  if (state === "error" || !report) return <AsyncState variant="error" message="Ringkasan validasi gagal dimuat. Coba buka ulang halaman ini." />;
++  return <ValidationSummary report={report} />;
++}
+diff --git a/features/graduation/graduation-api.ts b/features/graduation/graduation-api.ts
+new file mode 100644
+index 0000000..c75e7df
+--- /dev/null
++++ b/features/graduation/graduation-api.ts
+@@ -0,0 +1,41 @@
++import { request } from "../../lib/api-client";
++
++export type GraduationUploadStatus = "UPLOADED" | "VALIDATING" | "VALID" | "INVALID" | "FAILED";
++
++export type GraduationUpload = {
++  id: string;
++  status: GraduationUploadStatus;
++  sheetCount: number;
++  studentCount?: number;
++};
++
++export type ValidationSheet = {
++  name: string;
++  status?: string;
++  rowCount?: number;
++  columns?: string[];
++};
++
++export type ValidationReport = {
++  status: string;
++  sheets: ValidationSheet[];
++  errors: string[];
++};
++
++const XLSX_EXTENSION = ".xlsx";
++const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
++
++export function isAcceptedWorkbookFile(file: File): boolean {
++  return file.name.toLowerCase().endsWith(XLSX_EXTENSION) || file.type === XLSX_MIME;
++}
++
++export function uploadGraduationWorkbook(file: File): Promise<GraduationUpload> {
++  const body = new FormData();
++  body.append("file", file);
++  return request<GraduationUpload>("/api/graduation-uploads", { method: "POST", body });
++}
++
++export function getValidationReport(uploadId: string): Promise<ValidationReport> {
++  if (!uploadId.trim()) return Promise.reject(new Error("ID upload tidak ditemukan."));
++  return request<ValidationReport>(`/api/graduation-uploads/${encodeURIComponent(uploadId)}/validation`);
++}
+diff --git a/styles/globals.css b/styles/globals.css
+index 6c7b2a8..a327b29 100644
+--- a/styles/globals.css
++++ b/styles/globals.css
+@@ -339,6 +339,128 @@ form {
+   min-width: 0;
+ }
+ 
++.graduation-upload,
++.validation-summary {
++  display: grid;
++  gap: var(--space-6);
++}
++
++.graduation-upload__intro,
++.validation-summary__intro {
++  display: grid;
++  gap: var(--space-2);
++}
++
++.graduation-upload__intro h1,
++.graduation-upload__intro p,
++.validation-summary__intro h1,
++.validation-summary__intro p,
++.validation-sheet p {
++  margin: 0;
++}
++
++.graduation-upload__eyebrow {
++  color: var(--color-text-secondary-accessible);
++  font-size: var(--font-size-sm);
++  font-weight: 700;
++  letter-spacing: 0.04em;
++  text-transform: uppercase;
++}
++
++.graduation-upload__form {
++  width: 100%;
++  max-width: var(--form-max-width);
++  gap: var(--space-4);
++}
++
++.graduation-upload__dropzone {
++  display: grid;
++  gap: var(--space-3);
++  padding: var(--space-6);
++  border: 2px dashed var(--color-border);
++  border-radius: var(--radius-control);
++  box-shadow: var(--shadow-recessed);
++}
++
++.graduation-upload__dropzone input[type="file"] {
++  width: 100%;
++  min-height: var(--control-min-size);
++  padding: var(--space-2);
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++  background: var(--color-surface);
++  box-shadow: var(--shadow-recessed);
++}
++
++.graduation-upload__hint,
++.graduation-upload__file {
++  margin: 0;
++  color: var(--color-text-secondary-accessible);
++  font-size: var(--font-size-sm);
++}
++
++.graduation-upload__file strong {
++  color: var(--color-text-main);
++}
++
++.graduation-upload__error {
++  margin: 0;
++  color: var(--color-danger);
++}
++
++.graduation-upload__result,
++.validation-summary__errors,
++.validation-sheet {
++  display: grid;
++  gap: var(--space-3);
++  padding: var(--space-4);
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++  box-shadow: var(--shadow-recessed);
++}
++
++.graduation-upload__link {
++  width: fit-content;
++  min-height: var(--control-min-size);
++  padding: var(--space-2) var(--space-3);
++  border: var(--border-structural);
++  border-color: var(--color-primary);
++  border-radius: var(--radius-control);
++  color: var(--color-primary);
++  background: var(--color-surface);
++  box-shadow: var(--shadow-raised);
++}
++
++.validation-summary__sheets {
++  display: grid;
++  gap: var(--space-3);
++}
++
++.validation-sheet__heading {
++  display: flex;
++  flex-wrap: wrap;
++  align-items: center;
++  justify-content: space-between;
++  gap: var(--space-3);
++}
++
++.validation-sheet__heading h2,
++.validation-summary__errors h2 {
++  margin: 0;
++  font-size: 1rem;
++}
++
++.validation-summary__errors {
++  color: var(--color-danger);
++}
++
++.validation-summary__errors ul {
++  display: grid;
++  gap: var(--space-2);
++  margin: 0;
++  padding-left: var(--space-6);
++}
++
+ .auth-state,
+ .login-page {
+   display: grid;
+diff --git a/tests/frontend/auth-navigation.test.tsx b/tests/frontend/auth-navigation.test.tsx
+index d0f9a1b..bebe45c 100644
+--- a/tests/frontend/auth-navigation.test.tsx
++++ b/tests/frontend/auth-navigation.test.tsx
+@@ -13,7 +13,6 @@ import type { AuthUser } from "../../features/auth/auth-types";
+ 
+ const plannedDestinations = [
+   "/user/dashboard",
+-  "/user/graduation-upload",
+   "/user/reference-selection",
+   "/admin/dashboard",
+   "/admin/import/sitasi",
+diff --git a/tests/frontend/graduation-upload.test.tsx b/tests/frontend/graduation-upload.test.tsx
+new file mode 100644
+index 0000000..3f9b032
+--- /dev/null
++++ b/tests/frontend/graduation-upload.test.tsx
+@@ -0,0 +1,42 @@
++import React from "react";
++import { renderToStaticMarkup } from "react-dom/server";
++import { describe, expect, it, vi } from "vitest";
++import { GraduationUploadPanel, ValidationSummary } from "../../features/graduation/GraduationUpload";
++import { getValidationReport, isAcceptedWorkbookFile, uploadGraduationWorkbook, type ValidationReport } from "../../features/graduation/graduation-api";
++
++const xlsxFile = { name: "wisuda-september.xlsx", type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", size: 4096 } as File;
++
++describe("graduation workbook upload", () => {
++  it("accepts an XLSX workbook by its extension and MIME type", () => {
++    expect(isAcceptedWorkbookFile(xlsxFile)).toBe(true);
++  });
++  it("rejects a non-XLSX file before it is submitted", () => {
++    expect(isAcceptedWorkbookFile({ name: "wisuda.csv", type: "text/csv", size: 128 } as File)).toBe(false);
++  });
++  it("surfaces the server error when workbook upload fails", async () => {
++    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ error: { code: "INVALID_WORKBOOK", message: "Berkas tidak dapat dibaca." } }), { status: 422, headers: { "Content-Type": "application/json" } })));
++    await expect(uploadGraduationWorkbook(xlsxFile)).rejects.toMatchObject({ status: 422, message: "Berkas tidak dapat dibaca." });
++  });
++  it("keeps a 202 upload in a validating state", async () => {
++    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: "upload-1", status: "VALIDATING", sheetCount: 14 }), { status: 202, headers: { "Content-Type": "application/json" } })));
++    const upload = await uploadGraduationWorkbook(xlsxFile);
++    const markup = renderToStaticMarkup(<GraduationUploadPanel upload={upload} />);
++    expect(upload.status).toBe("VALIDATING");
++    expect(markup).toContain("Validasi sedang diproses");
++    expect(markup).toContain('aria-live="polite"');
++  });
++  it("renders the server-provided fourteen-sheet validation summary", () => {
++    const report: ValidationReport = { status: "INVALID", sheets: Array.from({ length: 14 }, (_, index) => ({ name: `Sheet ${index + 1}`, status: index === 0 ? "INVALID" : "VALID", rowCount: index + 10, columns: ["NIM", "Nama"] })), errors: ["Sheet 1: Kolom NIM wajib ada."] };
++    const markup = renderToStaticMarkup(<ValidationSummary report={report} />);
++    expect(markup).toContain("14 sheet ditemukan");
++    expect(markup).toContain("Sheet 1");
++    expect(markup).toContain("10 baris");
++    expect(markup).toContain("NIM, Nama");
++    expect(markup).toContain("Sheet 1: Kolom NIM wajib ada.");
++  });
++  it("requests validation through the documented upload endpoint", async () => {
++    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ status: "VALID", sheets: [], errors: [] }), { status: 200, headers: { "Content-Type": "application/json" } })));
++    await getValidationReport("upload-1");
++    expect(fetch).toHaveBeenCalledWith("/api/graduation-uploads/upload-1/validation", expect.objectContaining({ headers: expect.any(Headers) }));
++  });
++});

@@ -1,0 +1,94 @@
+diff --git a/.superpowers/sdd/2026-09-15-frontend-design-execution/task-5-report.md b/.superpowers/sdd/2026-09-15-frontend-design-execution/task-5-report.md
+index 6facb0c..75c7966 100644
+--- a/.superpowers/sdd/2026-09-15-frontend-design-execution/task-5-report.md
++++ b/.superpowers/sdd/2026-09-15-frontend-design-execution/task-5-report.md
+@@ -22,6 +22,12 @@ GREEN: focused suite lulus 9/9.
+ - `git diff --check` — PASS sebelum commit
+ - `npm run build` — terblokir `ENOSPC: no space left on device` saat Next.js menulis cache webpack; bukan error compile yang terobservasi.
+ 
++## Review follow-up
++
++- `ReferenceBatch.isActive` sekarang opsional sesuai schema OpenAPI; active endpoint tetap dipercaya aktif, sementara nilai eksplisit `false` tetap ditolak.
++- Retry pada status `FAILED` sekarang berupa button yang mereset state, membatalkan siklus lama, dan memulai GET status ulang melalui polling.
++- Regression suite setelah perbaikan: 10/10.
++
+ ## Batasan kontrak
+ 
+ Endpoint daftar batch inactive tidak digunakan karena schema pagination/field pilihan pada OpenAPI backend belum lengkap. Tidak ada fixture atau ID dummy yang ditambahkan ke production UI.
+diff --git a/features/synchronization/Synchronization.tsx b/features/synchronization/Synchronization.tsx
+index e676cfe..7df3b81 100644
+--- a/features/synchronization/Synchronization.tsx
++++ b/features/synchronization/Synchronization.tsx
+@@ -16,7 +16,7 @@ import {
+ } from "./synchronization-api";
+ 
+ function activeBatchIsValid(batch: ReferenceBatch | null | undefined, sourceType: ReferenceBatch["sourceType"]): batch is ReferenceBatch {
+-  return Boolean(batch && batch.id.trim() && batch.sourceType === sourceType && batch.isActive);
++  return Boolean(batch && batch.id.trim() && batch.sourceType === sourceType && batch.isActive !== false);
+ }
+ 
+ function apiMessage(error: unknown, fallback: string): string {
+@@ -107,5 +107,12 @@ export function SyncProgressPanel({ jobId, job: suppliedJob }: { jobId: string;
+   if (state === "error") return <AsyncState variant="error" message={error ?? "Progress sinkronisasi gagal dimuat."} action={<Button variant="secondary" onClick={() => { setState("loading"); setMonitoring(true); setRetryKey((key) => key + 1); }}>Coba lagi</Button>} />;
+   if (!job) return <AsyncState variant="empty" message="Server belum mengirim status sinkronisasi." />;
+   const progress = Math.min(100, Math.max(0, job.progress)); const terminal = TERMINAL_STATUSES.includes(job.status); const tone = job.status === "COMPLETED" ? "success" : job.status === "FAILED" ? "danger" : "warning";
+-  return <section className="sync-progress" aria-labelledby="sync-progress-title"><div className="sync-progress__intro"><p className="graduation-upload__eyebrow">Sinkronisasi #{job.id}</p><h1 id="sync-progress-title">{job.status === "COMPLETED" ? "Sinkronisasi selesai" : job.status === "FAILED" ? "Sinkronisasi gagal" : "Progress sinkronisasi"}</h1><StatusBadge tone={tone} label={statusLabel(job.status)} /></div><div className="sync-progress__meter" aria-live="polite"><p><strong>{job.currentStage ?? statusLabel(job.status)}</strong> · {progress}%</p><progress max="100" value={progress} aria-label={`Progress sinkronisasi ${progress}%`} />{job.totalRows !== undefined && job.processedRows !== undefined ? <p>{job.processedRows} dari {job.totalRows} baris diproses.</p> : null}</div><div className="sync-progress__counts" aria-label="Ringkasan hasil sementara">{job.readyCount !== undefined ? <span>Siap: {job.readyCount}</span> : null}{job.reviewCount !== undefined ? <span>Perlu ditinjau: {job.reviewCount}</span> : null}{job.failedCount !== undefined ? <span>Gagal: {job.failedCount}</span> : null}</div>{state === "stopped" ? <p className="sync-progress__stopped" role="status">Pemantauan dihentikan. Status terakhir tetap ditampilkan.</p> : null}{job.status === "FAILED" ? <p className="sync-progress__error" role="alert">Server menandai sinkronisasi gagal. Periksa log atau ulangi pemantauan.</p> : null}{terminal && job.status === "FAILED" ? <Link className="graduation-upload__link" href={`/user/synchronization/${encodeURIComponent(job.id)}/progress`}>Coba pantau ulang</Link> : null}{!terminal && monitoring ? <Button variant="secondary" onClick={() => { setMonitoring(false); setState("stopped"); }}>Hentikan pemantauan</Button> : null}</section>;
++  const retryMonitoring = () => {
++    setJob(null);
++    setError(null);
++    setState("loading");
++    setMonitoring(true);
++    setRetryKey((key) => key + 1);
++  };
++  return <section className="sync-progress" aria-labelledby="sync-progress-title"><div className="sync-progress__intro"><p className="graduation-upload__eyebrow">Sinkronisasi #{job.id}</p><h1 id="sync-progress-title">{job.status === "COMPLETED" ? "Sinkronisasi selesai" : job.status === "FAILED" ? "Sinkronisasi gagal" : "Progress sinkronisasi"}</h1><StatusBadge tone={tone} label={statusLabel(job.status)} /></div><div className="sync-progress__meter" aria-live="polite"><p><strong>{job.currentStage ?? statusLabel(job.status)}</strong> · {progress}%</p><progress max="100" value={progress} aria-label={`Progress sinkronisasi ${progress}%`} />{job.totalRows !== undefined && job.processedRows !== undefined ? <p>{job.processedRows} dari {job.totalRows} baris diproses.</p> : null}</div><div className="sync-progress__counts" aria-label="Ringkasan hasil sementara">{job.readyCount !== undefined ? <span>Siap: {job.readyCount}</span> : null}{job.reviewCount !== undefined ? <span>Perlu ditinjau: {job.reviewCount}</span> : null}{job.failedCount !== undefined ? <span>Gagal: {job.failedCount}</span> : null}</div>{state === "stopped" ? <p className="sync-progress__stopped" role="status">Pemantauan dihentikan. Status terakhir tetap ditampilkan.</p> : null}{job.status === "FAILED" ? <p className="sync-progress__error" role="alert">Server menandai sinkronisasi gagal. Periksa log atau ulangi pemantauan.</p> : null}{terminal && job.status === "FAILED" ? <Button variant="secondary" onClick={retryMonitoring}>Coba pantau ulang</Button> : null}{!terminal && monitoring ? <Button variant="secondary" onClick={() => { setMonitoring(false); setState("stopped"); }}>Hentikan pemantauan</Button> : null}</section>;
+ }
+diff --git a/features/synchronization/synchronization-api.ts b/features/synchronization/synchronization-api.ts
+index 79249b2..7317a59 100644
+--- a/features/synchronization/synchronization-api.ts
++++ b/features/synchronization/synchronization-api.ts
+@@ -7,7 +7,7 @@ export type ReferenceBatch = {
+   sourceType: ReferenceBatchSource;
+   period?: string;
+   status: string;
+-  isActive: boolean;
++  isActive?: boolean;
+ };
+ 
+ export type ActiveReferenceBatches = {
+diff --git a/tests/frontend/sync-run.test.tsx b/tests/frontend/sync-run.test.tsx
+index d443abe..2a020a9 100644
+--- a/tests/frontend/sync-run.test.tsx
++++ b/tests/frontend/sync-run.test.tsx
+@@ -74,6 +74,16 @@ describe("reference selection and sync progress states", () => {
+     expect(markup).toContain("Pilihan batch belum tersedia");
+   });
+ 
++  it("accepts active endpoint batches when the optional isActive field is omitted", () => {
++    const serverActive = {
++      sitasi: { id: "sitasi-2", sourceType: "SITASI", period: "2026-10", status: "ACTIVE" },
++      certiport: { id: "certiport-2", sourceType: "CERTIPORT", period: "2026-10", status: "ACTIVE" },
++    } as ActiveReferenceBatches;
++    const markup = renderToStaticMarkup(<ReferenceSelectionPanel uploadId="upload-1" activeBatches={serverActive} />);
++    expect(markup).toContain("sitasi-2");
++    expect(markup).toContain("certiport-2");
++  });
++
+   it("renders queued and processing progress with live text", () => {
+     const processing: SyncJob = { ...queuedJob, status: "PROCESSING", currentStage: "Mencocokkan data", progress: 42, processedRows: 4 };
+     const markup = renderToStaticMarkup(<SyncProgressPanel jobId="job-1" job={processing} />);
+@@ -83,12 +93,13 @@ describe("reference selection and sync progress states", () => {
+     expect(markup).toContain("Hentikan pemantauan");
+   });
+ 
+-  it("renders a terminal failure with a working retry link", () => {
++  it("renders a terminal failure with a working retry button", () => {
+     const failed: SyncJob = { ...queuedJob, status: "FAILED", currentStage: "Sinkronisasi gagal", progress: 32, failedCount: 2 };
+     const markup = renderToStaticMarkup(<SyncProgressPanel jobId="job-1" job={failed} />);
+     expect(markup).toContain("Sinkronisasi gagal");
+     expect(markup).toContain("Coba pantau ulang");
+-    expect(markup).toContain("/user/synchronization/job-1/progress");
++    expect(markup).toContain('type="button"');
++    expect(markup).not.toContain("/user/synchronization/job-1/progress");
+   });
+ 
+   it("renders completed state as terminal success", () => {

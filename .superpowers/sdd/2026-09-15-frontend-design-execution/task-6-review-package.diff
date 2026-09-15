@@ -1,0 +1,781 @@
+diff --git a/.superpowers/sdd/2026-09-15-frontend-design-execution/task-6-report.md b/.superpowers/sdd/2026-09-15-frontend-design-execution/task-6-report.md
+new file mode 100644
+index 0000000..875d6a8
+--- /dev/null
++++ b/.superpowers/sdd/2026-09-15-frontend-design-execution/task-6-report.md
+@@ -0,0 +1,29 @@
++# Task 6 report — Preview, review, output
++
++Status: complete
++
++## RED
++
++`npm test -- --run tests/frontend/sync-results.test.tsx` initially failed during collection because `features/synchronization/SyncResults` and the Task 6 API functions did not exist.
++
++## Implemented
++
++- Added typed `SyncRow`, row statuses, review payload, paginated rows, preview, generated output, and short-lived download response types/functions in `features/synchronization/synchronization-api.ts`.
++- Added server-backed row filters (`status`, `search`, `page`, `pageSize`), preview manifest loading, review submission, output generation, and authorized download URL handling.
++- Added `SyncRowsTable`, `SyncPreviewManifestPanel`, `SyncPreviewPanel`, `SyncReviewDialog`, and `SyncOutputPanel` under `features/synchronization/SyncResults.tsx`.
++- Added loading, empty, error, and forbidden states. The table has a keyboard-focusable horizontal overflow region for narrow screens.
++- Review uses a modal dialog with native controls, initial focus, and focus restoration. Review and output actions call the documented endpoints; no row or output data is fabricated and temporary URLs are not persisted.
++- Added routes `/user/synchronization/[id]/preview`, `/review`, and `/output`.
++- Updated the implemented protected route registry for the three real pages.
++- Added tactile, responsive styles and tokenized spacing for the new result/review/output surfaces.
++
++## Backend contract sync
++
++The frontend was checked against the current read-only backend contract at `C:\Users\LENOVO\Documents\ITCC\magang.worktrees\backend\docs\api\openapi.yaml`. No backend, OpenAPI, Supabase, or processor files were edited.
++
++## GREEN / verification
++
++- `npm run typecheck` — pass
++- `npm run lint` — pass
++- `npm test -- --run tests/frontend/sync-results.test.tsx` — 8/8 pass
++- `git diff --check` — pass (only unrelated CRLF conversion warnings from existing shared files)
+diff --git a/app/(protected)/user/synchronization/[id]/output/page.tsx b/app/(protected)/user/synchronization/[id]/output/page.tsx
+new file mode 100644
+index 0000000..d18b2de
+--- /dev/null
++++ b/app/(protected)/user/synchronization/[id]/output/page.tsx
+@@ -0,0 +1,6 @@
++import { SyncOutputPanel } from "../../../../../../features/synchronization/SyncResults";
++
++export default async function SyncOutputPage({ params }: { params: Promise<{ id: string }> }) {
++  const { id } = await params;
++  return <SyncOutputPanel jobId={id} />;
++}
+diff --git a/app/(protected)/user/synchronization/[id]/preview/page.tsx b/app/(protected)/user/synchronization/[id]/preview/page.tsx
+new file mode 100644
+index 0000000..b905860
+--- /dev/null
++++ b/app/(protected)/user/synchronization/[id]/preview/page.tsx
+@@ -0,0 +1,6 @@
++import { SyncPreviewManifestPanel } from "../../../../../../features/synchronization/SyncResults";
++
++export default async function SyncPreviewPage({ params }: { params: Promise<{ id: string }> }) {
++  const { id } = await params;
++  return <SyncPreviewManifestPanel jobId={id} />;
++}
+diff --git a/app/(protected)/user/synchronization/[id]/review/page.tsx b/app/(protected)/user/synchronization/[id]/review/page.tsx
+new file mode 100644
+index 0000000..b997532
+--- /dev/null
++++ b/app/(protected)/user/synchronization/[id]/review/page.tsx
+@@ -0,0 +1,6 @@
++import { SyncPreviewPanel } from "../../../../../../features/synchronization/SyncResults";
++
++export default async function SyncReviewPage({ params }: { params: Promise<{ id: string }> }) {
++  const { id } = await params;
++  return <SyncPreviewPanel jobId={id} />;
++}
+diff --git a/components/layout/Sidebar.tsx b/components/layout/Sidebar.tsx
+index 246b924..b0df076 100644
+--- a/components/layout/Sidebar.tsx
++++ b/components/layout/Sidebar.tsx
+@@ -32,6 +32,9 @@ export const IMPLEMENTED_PROTECTED_ROUTES: readonly string[] = [
+   "/user/file-validation",
+   "/user/reference-selection",
+   "/user/synchronization/[id]/progress",
++  "/user/synchronization/[id]/preview",
++  "/user/synchronization/[id]/review",
++  "/user/synchronization/[id]/output",
+ ];
+ 
+ export const NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
+diff --git a/features/synchronization/SyncResults.tsx b/features/synchronization/SyncResults.tsx
+new file mode 100644
+index 0000000..21fbeec
+--- /dev/null
++++ b/features/synchronization/SyncResults.tsx
+@@ -0,0 +1,238 @@
++"use client";
++
++import React, { useEffect, useRef, useState } from "react";
++import Link from "next/link";
++import { AsyncState } from "../../components/ui/AsyncState";
++import { Button } from "../../components/ui/Button";
++import { StatusBadge, type StatusTone } from "../../components/ui/StatusBadge";
++import { ApiClientError } from "../../lib/api-client";
++import {
++  generateSyncOutput,
++  getOutputDownload,
++  getSyncJobPreview,
++  getSyncJobRows,
++  reviewSyncRow,
++  type GeneratedOutput,
++  type OutputDownload,
++  type ReviewStatus,
++  type SyncRow,
++  type SyncRowStatus,
++  type SyncRowsQuery,
++  type SyncRowsResponse,
++} from "./synchronization-api";
++
++const ROW_STATUS_LABELS: Record<SyncRowStatus, string> = {
++  READY: "Siap",
++  NEEDS_REVIEW: "Perlu ditinjau",
++  NOT_FOUND_IN_SITASI: "Tidak ditemukan di SITASI",
++  SITASI_NOT_GRADUATED: "Belum lulus di SITASI",
++  CERTIPORT_NOT_FOUND: "Tidak ditemukan di Certiport",
++  DUPLICATE_NIM: "NIM duplikat",
++  EXCLUDED_MCF_PROGRAM: "Program MCF dikecualikan",
++  FAILED: "Gagal",
++};
++
++function rowTone(status: SyncRowStatus): StatusTone {
++  if (status === "READY") return "success";
++  if (status === "FAILED" || status === "NOT_FOUND_IN_SITASI" || status === "CERTIPORT_NOT_FOUND") return "danger";
++  if (status === "NEEDS_REVIEW" || status === "DUPLICATE_NIM" || status === "SITASI_NOT_GRADUATED") return "warning";
++  return "neutral";
++}
++
++function apiMessage(error: unknown, fallback: string): string {
++  return error instanceof ApiClientError ? error.message : fallback;
++}
++
++export interface SyncRowsTableProps {
++  rows: SyncRow[];
++  onReview?: (row: SyncRow) => void;
++}
++
++export function SyncRowsTable({ rows, onReview }: SyncRowsTableProps) {
++  if (!rows.length) return <AsyncState variant="empty" message="Belum ada baris yang cocok dengan filter saat ini." />;
++
++  return (
++    <div className="sync-results__table-region" tabIndex={0} aria-label="Tabel hasil sinkronisasi; geser horizontal untuk melihat semua kolom">
++      <table className="sync-results__table">
++        <caption className="ui-visually-hidden">Baris hasil sinkronisasi dan status keputusan</caption>
++        <thead><tr><th scope="col">Sheet / baris</th><th scope="col">NIM</th><th scope="col">Nama</th><th scope="col">Status</th><th scope="col">Nilai MOS</th><th scope="col">Gelar</th><th scope="col">Kode alasan</th><th scope="col">Aksi</th></tr></thead>
++        <tbody>{rows.map((row) => (
++          <tr key={row.id}>
++            <td>{row.sheetName} / {row.sourceRow}</td>
++            <td><code>{row.nim}</code></td>
++            <td>{row.nama}</td>
++            <td><StatusBadge tone={rowTone(row.resultStatus)} label={ROW_STATUS_LABELS[row.resultStatus]} /></td>
++            <td>{row.mosValue ?? "—"}</td>
++            <td>{row.titleValue ?? "—"}</td>
++            <td>{row.reasonCodes.length ? row.reasonCodes.join(", ") : "—"}</td>
++            <td>{onReview ? <Button variant="secondary" onClick={() => onReview(row)}>Review</Button> : "—"}</td>
++          </tr>
++        ))}</tbody>
++      </table>
++    </div>
++  );
++}
++
++export function SyncPreviewManifestPanel({ jobId, changes: suppliedChanges }: { jobId: string; changes?: SyncRow[] }) {
++  const controlled = suppliedChanges !== undefined;
++  const [changes, setChanges] = useState<SyncRow[]>(suppliedChanges ?? []);
++  const [state, setState] = useState<"loading" | "ready" | "error" | "forbidden">(controlled ? "ready" : "loading");
++  const [error, setError] = useState<string | null>(null);
++
++  useEffect(() => {
++    if (controlled) return;
++    if (!jobId.trim()) { setState("ready"); return; }
++    const controller = new AbortController();
++    getSyncJobPreview(jobId, controller.signal).then((next) => {
++      if (controller.signal.aborted) return;
++      setChanges(next.changes); setState("ready");
++    }, (caughtError) => {
++      if (controller.signal.aborted) return;
++      setError(apiMessage(caughtError, "Manifest preview gagal dimuat."));
++      setState(caughtError instanceof ApiClientError && caughtError.status === 403 ? "forbidden" : "error");
++    });
++    return () => controller.abort();
++  }, [controlled, jobId]);
++
++  if (!jobId.trim()) return <AsyncState variant="empty" message="ID sinkronisasi belum tersedia." />;
++  if (state === "loading") return <AsyncState variant="loading" message="Manifest preview sedang dimuat." />;
++  if (state === "forbidden") return <AsyncState variant="error" message={error ?? "Anda tidak memiliki akses ke preview ini."} />;
++  if (state === "error") return <AsyncState variant="error" message={error ?? "Manifest preview gagal dimuat."} />;
++  return <section className="sync-results" aria-labelledby="sync-manifest-title"><div className="sync-results__intro"><p className="graduation-upload__eyebrow">Manifest server</p><h1 id="sync-manifest-title">Preview perubahan</h1><p>{changes.length} perubahan dikirim oleh server.</p></div><SyncRowsTable rows={changes} /><div className="sync-results__pagination"><Link className="graduation-upload__link" href={`/user/synchronization/${encodeURIComponent(jobId)}/review`}>Buka review baris</Link><Link className="graduation-upload__link" href={`/user/synchronization/${encodeURIComponent(jobId)}/output`}>Buka output</Link></div></section>;
++}
++
++export interface SyncPreviewPanelProps {
++  jobId: string;
++  rows?: SyncRow[];
++  page?: number;
++  pageSize?: number;
++  total?: number;
++  result?: SyncRowsResponse | null;
++}
++
++export function SyncPreviewPanel({ jobId, rows: suppliedRows, page: suppliedPage = 1, pageSize: suppliedPageSize = 25, total: suppliedTotal, result: suppliedResult }: SyncPreviewPanelProps) {
++  const controlled = suppliedRows !== undefined || suppliedResult !== undefined;
++  const [rows, setRows] = useState<SyncRow[]>(suppliedResult?.items ?? suppliedRows ?? []);
++  const [page, setPage] = useState(suppliedResult?.page ?? suppliedPage);
++  const [pageSize, setPageSize] = useState(suppliedResult?.pageSize ?? suppliedPageSize);
++  const [total, setTotal] = useState(suppliedResult?.total ?? suppliedTotal ?? suppliedRows?.length ?? 0);
++  const [status, setStatus] = useState<SyncRowStatus | "">("");
++  const [search, setSearch] = useState("");
++  const [submittedSearch, setSubmittedSearch] = useState("");
++  const [state, setState] = useState<"loading" | "ready" | "error" | "forbidden">(controlled ? "ready" : "loading");
++  const [error, setError] = useState<string | null>(null);
++  const [retry, setRetry] = useState(0);
++  const [reviewRow, setReviewRow] = useState<SyncRow | null>(null);
++
++  useEffect(() => {
++    if (controlled) return;
++    if (!jobId.trim()) { setState("ready"); return; }
++    const controller = new AbortController();
++    setState("loading");
++    const query: SyncRowsQuery = { status: status || undefined, search: submittedSearch || undefined, page, pageSize };
++    getSyncJobRows(jobId, query, controller.signal).then((next) => {
++      if (controller.signal.aborted) return;
++      setRows(next.items); setPage(next.page); setPageSize(next.pageSize); setTotal(next.total); setState("ready"); setError(null);
++    }, (caughtError) => {
++      if (controller.signal.aborted) return;
++      setError(apiMessage(caughtError, "Baris hasil sinkronisasi gagal dimuat."));
++      setState(caughtError instanceof ApiClientError && caughtError.status === 403 ? "forbidden" : "error");
++    });
++    return () => controller.abort();
++  }, [controlled, jobId, page, pageSize, retry, status, submittedSearch]);
++
++  function submitSearch(event: React.FormEvent<HTMLFormElement>) {
++    event.preventDefault();
++    setPage(1);
++    setSubmittedSearch(search.trim());
++  }
++
++  function changeStatus(event: React.ChangeEvent<HTMLSelectElement>) {
++    setStatus(event.target.value as SyncRowStatus | "");
++    setPage(1);
++  }
++
++  const totalPages = Math.max(1, Math.ceil(total / pageSize));
++  if (!jobId.trim()) return <AsyncState variant="empty" message="ID sinkronisasi belum tersedia." />;
++  if (state === "loading") return <AsyncState variant="loading" message="Hasil sinkronisasi sedang dimuat." />;
++  if (state === "forbidden") return <AsyncState variant="error" message={error ?? "Anda tidak memiliki akses ke hasil sinkronisasi ini."} />;
++  if (state === "error") return <AsyncState variant="error" message={error ?? "Hasil sinkronisasi gagal dimuat."} action={<Button variant="secondary" onClick={() => setRetry((value) => value + 1)}>Coba lagi</Button>} />;
++
++  return <section className="sync-results" aria-labelledby="sync-results-title">
++    <div className="sync-results__intro"><p className="graduation-upload__eyebrow">Hasil sinkronisasi</p><h1 id="sync-results-title">Preview perubahan</h1><p>{total} baris dari server. Tidak ada data hasil yang dibuat di sisi klien.</p></div>
++    <form className="sync-results__filters" onSubmit={submitSearch}>
++      <label htmlFor="sync-status">Status</label>
++      <select id="sync-status" name="status" value={status} onChange={changeStatus}><option value="">Semua status</option>{Object.entries(ROW_STATUS_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
++      <label htmlFor="sync-search">Cari NIM atau nama</label>
++      <input id="sync-search" name="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Cari NIM atau nama" />
++      <Button type="submit">Terapkan pencarian</Button>
++    </form>
++    <SyncRowsTable rows={rows} onReview={setReviewRow} />
++    <div className="sync-results__pagination" aria-label="Navigasi halaman hasil"><span>Halaman {page} dari {totalPages}</span><Button variant="secondary" disabled={page <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>Sebelumnya</Button><Button variant="secondary" disabled={page >= totalPages} onClick={() => setPage((value) => Math.min(totalPages, value + 1))}>Berikutnya</Button></div>
++    {reviewRow ? <SyncReviewDialog row={reviewRow} onClose={() => setReviewRow(null)} onReviewed={(next) => { setRows((current) => current.map((item) => item.id === next.id ? next : item)); setReviewRow(null); }} /> : null}
++  </section>;
++}
++
++export interface SyncReviewDialogProps {
++  row: SyncRow;
++  onClose: () => void;
++  onReviewed?: (row: SyncRow) => void;
++}
++
++export function SyncReviewDialog({ row, onClose, onReviewed }: SyncReviewDialogProps) {
++  const closeButtonRef = useRef<HTMLButtonElement>(null);
++  const previousFocus = useRef<HTMLElement | null>(null);
++  const [decision, setDecision] = useState<ReviewStatus>("CONFIRMED");
++  const [note, setNote] = useState("");
++  const [state, setState] = useState<"idle" | "pending" | "error">("idle");
++  const [error, setError] = useState<string | null>(null);
++
++  useEffect(() => {
++    previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
++    closeButtonRef.current?.focus();
++    return () => previousFocus.current?.focus();
++  }, []);
++
++  async function submit(event: React.FormEvent<HTMLFormElement>) {
++    event.preventDefault(); setState("pending"); setError(null);
++    try { const updated = await reviewSyncRow(row.id, { decision, note }); onReviewed?.(updated); }
++    catch (caughtError) { setError(apiMessage(caughtError, "Keputusan review gagal disimpan.")); setState("error"); }
++  }
++
++  return <div className="sync-results__dialog-backdrop"><section className="sync-results__dialog" role="dialog" aria-modal="true" aria-labelledby="sync-review-title">
++    <button ref={closeButtonRef} type="button" className="sync-results__dialog-close" onClick={onClose}>Tutup review</button>
++    <h2 id="sync-review-title">Review {row.nama}</h2><p><code>{row.nim}</code> · {ROW_STATUS_LABELS[row.resultStatus]}</p>
++    <form onSubmit={submit}><fieldset><legend>Keputusan</legend>{(["CONFIRMED", "REJECTED", "SKIPPED"] as const).map((value) => <label key={value}><input type="radio" name="decision" value={value} checked={decision === value} onChange={() => setDecision(value)} /> {value === "CONFIRMED" ? "Konfirmasi" : value === "REJECTED" ? "Tolak" : "Lewati"}</label>)}</fieldset><label htmlFor="review-note">Catatan (opsional)</label><textarea id="review-note" maxLength={1000} value={note} onChange={(event) => setNote(event.target.value)} /><Button type="submit" loading={state === "pending"}>Simpan keputusan</Button>{state === "error" ? <p role="alert" className="sync-results__error">{error}</p> : null}</form>
++  </section></div>;
++}
++
++export interface SyncOutputPanelProps {
++  jobId: string;
++  output?: GeneratedOutput | null;
++}
++
++export function SyncOutputPanel({ jobId, output: suppliedOutput }: SyncOutputPanelProps) {
++  const [output, setOutput] = useState<GeneratedOutput | null>(suppliedOutput ?? null);
++  const [download, setDownload] = useState<OutputDownload | null>(null);
++  const [state, setState] = useState<"idle" | "pending" | "error">("idle");
++  const [error, setError] = useState<string | null>(null);
++
++  async function generate() {
++    setState("pending"); setError(null); setDownload(null);
++    try { setOutput(await generateSyncOutput(jobId)); setState("idle"); }
++    catch (caughtError) { setError(apiMessage(caughtError, "Output gagal dibuat.")); setState("error"); }
++  }
++
++  async function downloadOutput() {
++    if (!output?.id) return;
++    setState("pending"); setError(null);
++    try {
++      const authorized = await getOutputDownload(output.id);
++      setDownload(authorized);
++      setState("idle");
++      window.open(authorized.url, "_blank", "noopener,noreferrer");
++    } catch (caughtError) { setError(apiMessage(caughtError, "Link download gagal dibuat.")); setState("error"); }
++  }
++
++  return <section className="sync-results sync-output" aria-labelledby="sync-output-title"><div className="sync-results__intro"><p className="graduation-upload__eyebrow">File keluaran</p><h1 id="sync-output-title">Output sinkronisasi</h1><p>File hanya dapat dibuat setelah keputusan review yang diwajibkan server selesai.</p></div>{!output ? <><AsyncState variant="empty" message="Belum ada output untuk sinkronisasi ini." /><Button onClick={() => void generate()} loading={state === "pending"}>Generate output</Button></> : <div className="sync-output__result"><StatusBadge tone={output.status === "COMPLETED" ? "success" : "warning"} label={output.status} /><p>{output.fileName}</p><Button onClick={() => void downloadOutput()} loading={state === "pending"}>Download output</Button>{download ? <p className="sync-output__expiry" role="status">Link sementara berlaku sampai {download.expiresAt}.</p> : null}</div>}{state === "error" ? <p role="alert" className="sync-results__error">{error}</p> : null}</section>;
++}
+diff --git a/features/synchronization/synchronization-api.ts b/features/synchronization/synchronization-api.ts
+index 7317a59..fadf0fd 100644
+--- a/features/synchronization/synchronization-api.ts
++++ b/features/synchronization/synchronization-api.ts
+@@ -29,6 +29,63 @@ export type SyncJob = {
+   failedCount?: number;
+ };
+ 
++export type SyncRowStatus =
++  | "READY"
++  | "NEEDS_REVIEW"
++  | "NOT_FOUND_IN_SITASI"
++  | "SITASI_NOT_GRADUATED"
++  | "CERTIPORT_NOT_FOUND"
++  | "DUPLICATE_NIM"
++  | "EXCLUDED_MCF_PROGRAM"
++  | "FAILED";
++
++export type ReviewStatus = "CONFIRMED" | "REJECTED" | "SKIPPED";
++
++export type SyncRow = {
++  id: string;
++  sheetName: string;
++  sourceRow: number;
++  nim: string;
++  nama: string;
++  resultStatus: SyncRowStatus;
++  mosValue: string | null;
++  titleValue: string | null;
++  reasonCodes: string[];
++};
++
++export type SyncRowsQuery = {
++  status?: SyncRowStatus;
++  search?: string;
++  page?: number;
++  pageSize?: number;
++};
++
++export type SyncRowsResponse = {
++  items: SyncRow[];
++  page: number;
++  pageSize: number;
++  total: number;
++  totalPages?: number;
++};
++
++export type SyncPreview = { changes: SyncRow[] };
++
++export type GeneratedOutput = {
++  id: string;
++  status: string;
++  fileName: string;
++};
++
++export type OutputDownload = {
++  url: string;
++  expiresAt: string;
++};
++
++export type ReviewSyncRowPayload = {
++  decision: ReviewStatus;
++  note?: string;
++};
++
+ export type StartSynchronizationPayload = {
+   graduationUploadId: string;
+   sitasiBatchId: string;
+@@ -55,3 +112,50 @@ export function getSyncJob(jobId: string, signal?: AbortSignal): Promise<SyncJob
+   if (!jobId.trim()) return Promise.reject(new Error("ID sinkronisasi belum tersedia."));
+   return request<SyncJob>(`/api/sync-jobs/${encodeURIComponent(jobId)}`, { signal });
+ }
++
++function requireIdentifier(value: string, message: string): void {
++  if (!value.trim()) throw new Error(message);
++}
++
++export function getSyncJobRows(jobId: string, query: SyncRowsQuery = {}, signal?: AbortSignal): Promise<SyncRowsResponse> {
++  requireIdentifier(jobId, "ID sinkronisasi belum tersedia.");
++  const params = new URLSearchParams();
++  if (query.status) params.set("status", query.status);
++  if (query.search?.trim()) params.set("search", query.search.trim());
++  if (query.page !== undefined) params.set("page", String(query.page));
++  if (query.pageSize !== undefined) params.set("pageSize", String(query.pageSize));
++  const suffix = params.toString();
++  return request<SyncRowsResponse>(`/api/sync-jobs/${encodeURIComponent(jobId)}/rows${suffix ? `?${suffix}` : ""}`, { signal });
++}
++
++export function getSyncJobPreview(jobId: string, signal?: AbortSignal): Promise<SyncPreview> {
++  requireIdentifier(jobId, "ID sinkronisasi belum tersedia.");
++  return request<SyncPreview>(`/api/sync-jobs/${encodeURIComponent(jobId)}/preview`, { signal });
++}
++
++export function reviewSyncRow(rowId: string, payload: ReviewSyncRowPayload, signal?: AbortSignal): Promise<SyncRow> {
++  requireIdentifier(rowId, "ID baris belum tersedia.");
++  if (!payload.decision) return Promise.reject(new Error("Keputusan review wajib dipilih."));
++  const body: ReviewSyncRowPayload = payload.note?.trim()
++    ? { decision: payload.decision, note: payload.note.trim() }
++    : { decision: payload.decision };
++  return request<SyncRow>(`/api/sync-rows/${encodeURIComponent(rowId)}/review`, {
++    method: "POST",
++    headers: { "Content-Type": "application/json" },
++    body: JSON.stringify(body),
++    signal,
++  });
++}
++
++export function generateSyncOutput(jobId: string, signal?: AbortSignal): Promise<GeneratedOutput> {
++  requireIdentifier(jobId, "ID sinkronisasi belum tersedia.");
++  return request<GeneratedOutput>(`/api/sync-jobs/${encodeURIComponent(jobId)}/generate-output`, {
++    method: "POST",
++    signal,
++  });
++}
++
++export function getOutputDownload(outputId: string, signal?: AbortSignal): Promise<OutputDownload> {
++  requireIdentifier(outputId, "ID output belum tersedia.");
++  return request<OutputDownload>(`/api/outputs/${encodeURIComponent(outputId)}/download`, { signal });
++}
+diff --git a/styles/globals.css b/styles/globals.css
+index 913b4c1..9dc8db0 100644
+--- a/styles/globals.css
++++ b/styles/globals.css
+@@ -543,6 +543,193 @@ form {
+   box-shadow: var(--shadow-recessed);
+ }
+ 
++.sync-results,
++.sync-output {
++  display: grid;
++  gap: var(--space-6);
++}
++
++.sync-results__intro {
++  display: grid;
++  gap: var(--space-2);
++}
++
++.sync-results__intro h1,
++.sync-results__intro p,
++.sync-output__result p,
++.sync-output__expiry {
++  margin: 0;
++}
++
++.sync-results__filters {
++  display: grid;
++  grid-template-columns: minmax(8rem, 0.5fr) minmax(12rem, 1fr) auto;
++  align-items: end;
++  width: 100%;
++  max-width: none;
++  gap: var(--space-2);
++}
++
++.sync-results__filters label:nth-of-type(2) {
++  grid-column: 2;
++}
++
++.sync-results__filters select,
++.sync-results__filters input,
++.sync-results__dialog textarea {
++  min-height: var(--control-min-size);
++  padding: var(--space-2) var(--space-3);
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++  color: var(--color-text-main);
++  background: var(--color-surface);
++  box-shadow: var(--shadow-recessed);
++}
++
++.sync-results__filters select {
++  grid-column: 1;
++}
++
++.sync-results__filters input {
++  grid-column: 2;
++}
++
++.sync-results__filters button {
++  grid-column: 3;
++  grid-row: 2;
++}
++
++.sync-results__table-region {
++  width: 100%;
++  max-width: 100%;
++  overflow-x: auto;
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++  box-shadow: var(--shadow-recessed);
++}
++
++.sync-results__table {
++  width: 100%;
++  min-width: 72rem;
++  border-collapse: collapse;
++  background: var(--color-surface);
++}
++
++.sync-results__table th,
++.sync-results__table td {
++  padding: var(--space-3);
++  border-bottom: var(--border-structural);
++  text-align: left;
++  vertical-align: top;
++}
++
++.sync-results__table th {
++  color: var(--color-text-secondary-accessible);
++  font-size: var(--font-size-sm);
++}
++
++.sync-results__table tr:last-child td {
++  border-bottom: 0;
++}
++
++.sync-results__table code,
++.sync-results__dialog code {
++  font-family: "JetBrains Mono", Consolas, monospace;
++}
++
++.sync-results__pagination {
++  display: flex;
++  flex-wrap: wrap;
++  align-items: center;
++  gap: var(--space-3);
++}
++
++.sync-results__pagination span {
++  margin-right: auto;
++  color: var(--color-text-secondary-accessible);
++}
++
++.sync-results__dialog-backdrop {
++  position: fixed;
++  z-index: 10;
++  inset: 0;
++  display: grid;
++  place-items: center;
++  padding: var(--space-4);
++  background: rgb(39 49 58 / 0.34);
++}
++
++.sync-results__dialog {
++  display: grid;
++  gap: var(--space-4);
++  width: min(100%, 32rem);
++  max-height: calc(100dvh - var(--space-8));
++  overflow-y: auto;
++  padding: var(--space-6);
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++  color: var(--color-text-main);
++  background: var(--color-surface);
++  box-shadow: var(--shadow-raised);
++}
++
++.sync-results__dialog h2,
++.sync-results__dialog p {
++  margin: 0;
++}
++
++.sync-results__dialog-close {
++  justify-self: end;
++  min-height: var(--control-min-size);
++  padding: var(--space-2) var(--space-3);
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++  color: var(--color-text-main);
++  background: var(--color-surface);
++  box-shadow: var(--shadow-raised);
++  cursor: pointer;
++}
++
++.sync-results__dialog form,
++.sync-results__dialog fieldset {
++  display: grid;
++  gap: var(--space-3);
++  width: 100%;
++  max-width: none;
++}
++
++.sync-results__dialog fieldset {
++  padding: var(--space-3);
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++}
++
++.sync-results__dialog textarea {
++  min-height: 6rem;
++  resize: vertical;
++}
++
++.sync-results__error {
++  margin: 0;
++  color: var(--color-danger);
++}
++
++.sync-output__result {
++  display: grid;
++  justify-items: start;
++  gap: var(--space-3);
++  width: 100%;
++  padding: var(--space-4);
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++  box-shadow: var(--shadow-raised);
++}
++
++.sync-output__expiry {
++  color: var(--color-text-secondary-accessible);
++  font-size: var(--font-size-sm);
++}
++
+ .sync-progress__meter progress {
+   width: 100%;
+   height: var(--space-3);
+@@ -648,6 +835,20 @@ form {
+   }
+ }
+ 
++@media (max-width: 47.99rem) {
++  .sync-results__filters {
++    grid-template-columns: 1fr;
++  }
++
++  .sync-results__filters label:nth-of-type(2),
++  .sync-results__filters select,
++  .sync-results__filters input,
++  .sync-results__filters button {
++    grid-column: 1;
++    grid-row: auto;
++  }
++}
++
+ @media (min-width: 70rem) {
+   .app-shell {
+     grid-template-columns: 17rem minmax(0, 1fr);
+diff --git a/styles/tokens.css b/styles/tokens.css
+index 3f75dcb..a950360 100644
+--- a/styles/tokens.css
++++ b/styles/tokens.css
+@@ -30,6 +30,7 @@
+   --space-4: 1rem;
+   --space-6: 1.5rem;
+   --space-8: 2rem;
++  --space-10: 2.5rem;
+   --font-size-sm: 0.875rem;
+   --line-height-tight: 1.35;
+   --line-height-base: 1.6;
+diff --git a/tests/frontend/sync-results.test.tsx b/tests/frontend/sync-results.test.tsx
+new file mode 100644
+index 0000000..237cb38
+--- /dev/null
++++ b/tests/frontend/sync-results.test.tsx
+@@ -0,0 +1,96 @@
++import React from "react";
++import { renderToStaticMarkup } from "react-dom/server";
++import { describe, expect, it, vi } from "vitest";
++import {
++  generateSyncOutput,
++  getSyncJobPreview,
++  getSyncJobRows,
++  getOutputDownload,
++  reviewSyncRow,
++  type SyncRow,
++} from "../../features/synchronization/synchronization-api";
++import {
++  SyncOutputPanel,
++  SyncPreviewPanel,
++  SyncReviewDialog,
++  SyncRowsTable,
++} from "../../features/synchronization/SyncResults";
++
++const row: SyncRow = {
++  id: "row-1",
++  sheetName: "Wisudawan",
++  sourceRow: 12,
++  nim: "20260001",
++  nama: "Dina Pratama",
++  resultStatus: "NEEDS_REVIEW",
++  mosValue: "MOS 2019",
++  titleValue: "S.Kom.",
++  reasonCodes: ["NAME_ONLY_MATCH"],
++};
++
++describe("sync results API", () => {
++  it("builds documented row filters and pagination", async () => {
++    const response = { items: [row], page: 2, pageSize: 10, total: 1, totalPages: 1 };
++    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify(response), { status: 200 }));
++    vi.stubGlobal("fetch", fetchMock);
++    await getSyncJobRows("job/1", { status: "NEEDS_REVIEW", search: "Dina", page: 2, pageSize: 10 });
++    expect(fetchMock).toHaveBeenCalledWith("/api/sync-jobs/job%2F1/rows?status=NEEDS_REVIEW&search=Dina&page=2&pageSize=10", expect.anything());
++  });
++
++  it("loads preview changes and submits the exact review payload", async () => {
++    const fetchMock = vi.fn()
++      .mockResolvedValueOnce(new Response(JSON.stringify({ changes: [row] }), { status: 200 }))
++      .mockResolvedValueOnce(new Response(JSON.stringify({ ...row, resultStatus: "READY" }), { status: 200 }));
++    vi.stubGlobal("fetch", fetchMock);
++    await expect(getSyncJobPreview("job-1")).resolves.toEqual({ changes: [row] });
++    await reviewSyncRow("row-1", { decision: "CONFIRMED", note: "Dikonfirmasi operator" });
++    expect(fetchMock).toHaveBeenLastCalledWith("/api/sync-rows/row-1/review", expect.objectContaining({ method: "POST", body: JSON.stringify({ decision: "CONFIRMED", note: "Dikonfirmasi operator" }) }));
++  });
++
++  it("generates output and keeps the authorized download URL transient", async () => {
++    const fetchMock = vi.fn()
++      .mockResolvedValueOnce(new Response(JSON.stringify({ id: "output-1", status: "QUEUED", fileName: "hasil.xlsx" }), { status: 202 }))
++      .mockResolvedValueOnce(new Response(JSON.stringify({ url: "https://download.example/once", expiresAt: "2026-09-15T12:00:00Z" }), { status: 200 }));
++    vi.stubGlobal("fetch", fetchMock);
++    await expect(generateSyncOutput("job-1")).resolves.toEqual({ id: "output-1", status: "QUEUED", fileName: "hasil.xlsx" });
++    await expect(getOutputDownload("output-1")).resolves.toEqual({ url: "https://download.example/once", expiresAt: "2026-09-15T12:00:00Z" });
++  });
++
++  it("surfaces forbidden and failed download responses", async () => {
++    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ error: { code: "FORBIDDEN", message: "Akses ditolak", requestId: "req-1" } }), { status: 403 })));
++    await expect(getOutputDownload("output-1")).rejects.toThrow("Akses ditolak");
++  });
++});
++
++describe("sync results states and accessible review", () => {
++  it("renders exact rows with horizontal overflow and text status", () => {
++    const markup = renderToStaticMarkup(<SyncRowsTable rows={[row]} />);
++    expect(markup).toContain("Dina Pratama");
++    expect(markup).toContain("Perlu ditinjau");
++    expect(markup).toContain("sync-results__table-region");
++    expect(markup).toContain("NAME_ONLY_MATCH");
++  });
++
++  it("renders filter controls, submitted search, and pagination state", () => {
++    const markup = renderToStaticMarkup(<SyncPreviewPanel jobId="job-1" rows={[row]} page={2} pageSize={10} total={21} />);
++    expect(markup).toContain("Cari NIM atau nama");
++    expect(markup).toContain('name="status"');
++    expect(markup).toContain("Halaman 2 dari 3");
++    expect(markup).toContain("21 baris");
++  });
++
++  it("renders a keyboard-operable review dialog with a close action", () => {
++    const markup = renderToStaticMarkup(<SyncReviewDialog row={row} onClose={() => undefined} />);
++    expect(markup).toContain('role="dialog"');
++    expect(markup).toContain('aria-modal="true"');
++    expect(markup).toContain("Konfirmasi");
++    expect(markup).toContain("Tutup review");
++  });
++
++  it("renders output generation and empty/error states without inventing output", () => {
++    const empty = renderToStaticMarkup(<SyncOutputPanel jobId="job-1" output={null} />);
++    expect(empty).toContain("Belum ada output");
++    expect(empty).toContain("Generate output");
++    expect(empty).not.toContain("hasil-wisuda.xlsx");
++  });
++});

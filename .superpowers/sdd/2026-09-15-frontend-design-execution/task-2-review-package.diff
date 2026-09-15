@@ -1,0 +1,596 @@
+diff --git a/.superpowers/sdd/2026-09-15-frontend-design-execution/task-2-report.md b/.superpowers/sdd/2026-09-15-frontend-design-execution/task-2-report.md
+new file mode 100644
+index 0000000..778ee3e
+--- /dev/null
++++ b/.superpowers/sdd/2026-09-15-frontend-design-execution/task-2-report.md
+@@ -0,0 +1,109 @@
++# Task 2 Report: Tokens and tactile UI primitives
++
++## Status
++
++Implemented the shared token layer and four typed UI primitives requested by Task 2. The implementation remains API-agnostic and does not modify backend, Supabase, OpenAPI, or processor files.
++
++## Design read
++
++Reading this as an internal operational UI foundation for ITCC staff, using the approved tactile Stitch language with ENERGY 1 / RHYTHM 1 / MOTION 1.
++
++Major decision reasons:
++
++- Color: the neutral surface, blue action, and semantic tones come directly from the Stitch design-system metadata.
++- Typography: Arial remains the base because the repository has no approved local font asset or loading strategy.
++- Depth: raised buttons, recessed fields and state panels, and pressed actions make interaction state tactile without decorative glow or glass.
++- Spacing: one compact token scale keeps later operational screens consistent and preserves 44px touch targets.
++- Status marker: the dot carries the semantic tone while adjacent status text prevents color-only meaning.
++- Motion: only a short press-state transition is present, and reduced-motion removes it.
++
++## Files
++
++- `styles/tokens.css`
++- `styles/globals.css`
++- `components/ui/Button.tsx`
++- `components/ui/TextField.tsx`
++- `components/ui/StatusBadge.tsx`
++- `components/ui/AsyncState.tsx`
++- `tests/frontend/ui-primitives.test.tsx`
++
++## TDD evidence
++
++### RED
++
++Command:
++
++```text
++npm test -- tests/frontend/ui-primitives.test.tsx
++```
++
++Result: exit 1. Vitest could not resolve `../../components/ui/AsyncState`, proving the new primitive suite failed before implementation because the requested components did not exist.
++
++```text
++FAIL  tests/frontend/ui-primitives.test.tsx
++Error: Cannot find module '../../components/ui/AsyncState'
++Test Files  1 failed (1)
++```
++
++### GREEN
++
++Command:
++
++```text
++npm test -- tests/frontend/ui-primitives.test.tsx
++```
++
++Result: exit 0.
++
++```text
++PASS  tests/frontend/ui-primitives.test.tsx (8 tests)
++Test Files  1 passed (1)
++Tests  8 passed (8)
++```
++
++The focused suite covers loading and disabled button markup, label and error relationships, visible status text, all three asynchronous state messages, and the optional recovery action slot.
++
++## Contrast evidence
++
++Checked with the antislop WCAG 2.x contrast script:
++
++| Foreground | Background | Ratio | Use |
++|---|---|---:|---|
++| `#27313A` | `#E0E0E0` | 10.03:1 | Main text, PASS for normal text |
++| `#66717A` | `#E0E0E0` | 3.78:1 | Official secondary token, FAIL for normal text and PASS for large text or non-text boundaries |
++| `#FFFFFF` | `#356AE6` | 4.82:1 | Primary button text, PASS for normal text |
++| `#505A62` | `#E0E0E0` | 5.34:1 | Accessible secondary normal text, PASS |
++| `#2F7D54` | `#E0E0E0` | 3.80:1 | Success status marker, PASS for non-text contrast |
++| `#956D18` | `#E0E0E0` | 3.55:1 | Warning status marker, PASS for non-text contrast |
++| `#A43D42` | `#E0E0E0` | 4.78:1 | Danger marker and error text, PASS for normal text |
++
++The official `#66717A` value remains available as `--color-text-secondary`. Normal-size secondary copy uses `--color-text-secondary-accessible` (`#505A62`) because the official value does not meet the 4.5:1 normal-text threshold. The official secondary value is also the structural border color because its 3.78:1 ratio exceeds the 3:1 non-text threshold.
++
++## Verification
++
++| Command | Result |
++|---|---|
++| `npm run lint` | exit 0, ESLint reported no errors or warnings |
++| `npm run typecheck` | exit 0, TypeScript reported no errors |
++| `npm test` | exit 0, 2 files and 15 tests passed |
++| `npm run build` | exit 0, Next.js 15.5.3 compiled and generated 5 static pages |
++| `git diff --check` | exit 0, no whitespace errors; Git only reported the existing LF-to-CRLF worktree notice |
++
++## Accessibility and anti-slop gate
++
++- R-02 PASS: primitive-facing strings contain no em dash.
++- R-03 PASS: controls are fluid-width where needed and interactive targets have a 44px minimum size.
++- R-25 PASS: required text pairs were computed above; the failing official secondary pair is not used for normal text.
++- R-26 PASS: Button retains native button props and defaults to `type="button"`; loading and disabled states set native `disabled`.
++- R-27 PASS: AsyncState has explicit loading, empty, and error variants with required human-readable messages.
++- R-32 PASS: native button and input keyboard behavior is retained, and global `:focus-visible` uses a 2px primary outline with offset.
++- R-33 PASS: all CSS and components were authored directly in source.
++- R-35 PASS within primitive scope: focused server rendering verifies emitted native semantics, the full production build succeeds, and source inspection covers each primitive. No routed showcase exists in Task 2, so page-level browser click-through remains a later integration check.
++- C-4 PASS: status is not color-only, errors use `role="alert"`, non-error async states use polite status announcements, and reduced-motion removes the only transition.
++- Purpose gate PASS: there are no gradients, glow, glass, illustrations, decorative icons, invented content, or template page structures. Shadows exist only to distinguish raised, recessed, and pressed interaction states.
++- Liveliness PASS for this foundation: tactile depth is the repeated identity motif, blue is limited to primary action and focus, and spacing follows a deliberate compact operational rhythm.
++
++## Concerns
++
++- The primitives are not mounted on a routed page in Task 2, so visual browser and 200 percent zoom checks must be repeated when Task 3 consumes them.
++- Plus Jakarta Sans is named in the Stitch direction but was not added because there is no approved local font asset; Arial is intentionally preserved per the Task 2 brief.
+diff --git a/components/ui/AsyncState.tsx b/components/ui/AsyncState.tsx
+new file mode 100644
+index 0000000..22c62d2
+--- /dev/null
++++ b/components/ui/AsyncState.tsx
+@@ -0,0 +1,23 @@
++import React, { type ReactNode } from "react";
++
++export type AsyncStateVariant = "loading" | "empty" | "error";
++
++export interface AsyncStateProps {
++  variant: AsyncStateVariant;
++  message: string;
++  action?: ReactNode;
++}
++
++export function AsyncState({ variant, message, action }: AsyncStateProps) {
++  const accessibility =
++    variant === "error"
++      ? { role: "alert" as const }
++      : { role: "status" as const, "aria-live": "polite" as const };
++
++  return (
++    <section className="ui-async-state" data-state={variant} {...accessibility}>
++      <p className="ui-async-state__message">{message}</p>
++      {action}
++    </section>
++  );
++}
+diff --git a/components/ui/Button.tsx b/components/ui/Button.tsx
+new file mode 100644
+index 0000000..6c30e03
+--- /dev/null
++++ b/components/ui/Button.tsx
+@@ -0,0 +1,40 @@
++import React, { type ButtonHTMLAttributes, type ReactNode } from "react";
++
++type ButtonVariant = "primary" | "secondary" | "quiet";
++
++export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
++  variant?: ButtonVariant;
++  loading?: boolean;
++  children: ReactNode;
++}
++
++export function Button({
++  variant = "primary",
++  loading = false,
++  disabled = false,
++  type = "button",
++  className,
++  children,
++  ...props
++}: ButtonProps) {
++  const classes = ["ui-button", `ui-button--${variant}`, className].filter(Boolean).join(" ");
++
++  return (
++    <button
++      {...props}
++      type={type}
++      className={classes}
++      disabled={disabled || loading}
++      aria-busy={loading || undefined}
++    >
++      {loading ? (
++        <>
++          <span>Sedang memproses</span>
++          <span className="ui-visually-hidden">: {children}</span>
++        </>
++      ) : (
++        children
++      )}
++    </button>
++  );
++}
+diff --git a/components/ui/StatusBadge.tsx b/components/ui/StatusBadge.tsx
+new file mode 100644
+index 0000000..c1e923a
+--- /dev/null
++++ b/components/ui/StatusBadge.tsx
+@@ -0,0 +1,16 @@
++import React, { type ReactNode } from "react";
++
++export type StatusTone = "success" | "warning" | "danger" | "neutral";
++
++export interface StatusBadgeProps {
++  tone?: StatusTone;
++  children: ReactNode;
++}
++
++export function StatusBadge({ tone = "neutral", children }: StatusBadgeProps) {
++  return (
++    <span className="ui-status-badge" data-tone={tone}>
++      {children}
++    </span>
++  );
++}
+diff --git a/components/ui/TextField.tsx b/components/ui/TextField.tsx
+new file mode 100644
+index 0000000..82b1004
+--- /dev/null
++++ b/components/ui/TextField.tsx
+@@ -0,0 +1,39 @@
++import React, { useId, type InputHTMLAttributes } from "react";
++
++export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
++  label: string;
++  hint?: string;
++  error?: string;
++}
++
++export function TextField({ id, label, hint, error, className, ...props }: TextFieldProps) {
++  const generatedId = useId();
++  const inputId = id ?? generatedId;
++  const hintId = hint ? `${inputId}-hint` : undefined;
++  const errorId = error ? `${inputId}-error` : undefined;
++  const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
++  const classes = ["ui-field__input", className].filter(Boolean).join(" ");
++
++  return (
++    <div className="ui-field">
++      <label htmlFor={inputId}>{label}</label>
++      <input
++        {...props}
++        id={inputId}
++        className={classes}
++        aria-describedby={describedBy}
++        aria-invalid={error ? true : undefined}
++      />
++      {hint ? (
++        <p id={hintId} className="ui-field__hint">
++          {hint}
++        </p>
++      ) : null}
++      {error ? (
++        <p id={errorId} className="ui-field__error" role="alert">
++          {error}
++        </p>
++      ) : null}
++    </div>
++  );
++}
+diff --git a/styles/globals.css b/styles/globals.css
+index b48b72a..fdbc233 100644
+--- a/styles/globals.css
++++ b/styles/globals.css
+@@ -1,15 +1,193 @@
++@import "./tokens.css";
++
+ :root {
+   color-scheme: light;
+   font-family: Arial, sans-serif;
+-  background: #e0e0e0;
+-  color: #27313a;
+-}
+-
+-* { box-sizing: border-box; }
+-body { margin: 0; min-width: 320px; }
+-main { max-width: 720px; margin: 0 auto; padding: 32px 24px; }
+-form { display: grid; gap: 8px; max-width: 420px; }
+-input, button { min-height: 44px; border-radius: 8px; font: inherit; }
+-input { padding: 8px 12px; border: 1px solid #bebebe; background: #e0e0e0; }
+-button { padding: 8px 16px; border: 0; background: #356ae6; color: #fff; cursor: pointer; }
+-:focus-visible { outline: 2px solid #356ae6; outline-offset: 2px; }
++  font-size: 100%;
++  line-height: var(--line-height-base);
++  background: var(--color-surface);
++  color: var(--color-text-main);
++  text-rendering: optimizeLegibility;
++}
++
++* {
++  box-sizing: border-box;
++}
++
++html,
++body {
++  min-width: 20rem;
++  min-height: 100dvh;
++  background: var(--color-surface);
++}
++
++body {
++  margin: 0;
++  color: var(--color-text-main);
++}
++
++button,
++input {
++  font: inherit;
++}
++
++button,
++a,
++input {
++  -webkit-tap-highlight-color: transparent;
++}
++
++:focus-visible {
++  outline: var(--focus-width) solid var(--color-primary);
++  outline-offset: var(--focus-offset);
++}
++
++main {
++  width: min(100%, 45rem);
++  margin-inline: auto;
++  padding: clamp(var(--space-6), 5vw, var(--space-8));
++}
++
++form {
++  display: grid;
++  max-width: 26.25rem;
++  gap: var(--space-2);
++}
++
++.ui-visually-hidden {
++  position: absolute;
++  width: 1px;
++  height: 1px;
++  padding: 0;
++  margin: -1px;
++  overflow: hidden;
++  clip: rect(0, 0, 0, 0);
++  white-space: nowrap;
++  border: 0;
++}
++
++.ui-button {
++  min-width: var(--control-min-size);
++  min-height: var(--control-min-size);
++  padding: var(--space-2) var(--space-4);
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++  color: var(--color-text-main);
++  background: var(--color-surface);
++  box-shadow: var(--shadow-raised);
++  cursor: pointer;
++  transition: box-shadow var(--motion-fast) ease-out;
++}
++
++.ui-button:active:not(:disabled) {
++  box-shadow: var(--shadow-pressed);
++}
++
++.ui-button:disabled {
++  cursor: not-allowed;
++  opacity: var(--disabled-opacity);
++  box-shadow: var(--shadow-pressed);
++}
++
++.ui-button--primary {
++  border-color: var(--color-primary);
++  color: var(--color-primary-text);
++  background: var(--color-primary);
++}
++
++.ui-button--quiet {
++  border-color: transparent;
++  box-shadow: none;
++}
++
++.ui-field {
++  display: grid;
++  gap: var(--space-1);
++  color: var(--color-text-main);
++}
++
++.ui-field__input {
++  width: 100%;
++  min-height: var(--control-min-size);
++  padding: var(--space-2) var(--space-3);
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++  color: var(--color-text-main);
++  background: var(--color-surface);
++  box-shadow: var(--shadow-recessed);
++}
++
++.ui-field__input[aria-invalid="true"] {
++  border-color: var(--color-danger);
++}
++
++.ui-field__hint,
++.ui-field__error {
++  margin: 0;
++  font-size: var(--font-size-sm);
++  line-height: var(--line-height-tight);
++}
++
++.ui-field__hint {
++  color: var(--color-text-secondary-accessible);
++}
++
++.ui-field__error {
++  color: var(--color-danger);
++}
++
++.ui-status-badge {
++  display: inline-flex;
++  align-items: center;
++  gap: var(--space-2);
++  width: fit-content;
++  padding: var(--space-1) var(--space-2);
++  border: var(--border-structural);
++  border-radius: var(--radius-status);
++  color: var(--color-text-main);
++  background: var(--color-surface);
++  font-size: var(--font-size-sm);
++  font-weight: 700;
++}
++
++.ui-status-badge::before {
++  width: var(--space-2);
++  height: var(--space-2);
++  border-radius: 50%;
++  background: var(--status-color, var(--color-text-secondary-accessible));
++  content: "";
++}
++
++.ui-status-badge[data-tone="success"] {
++  --status-color: var(--color-success);
++}
++
++.ui-status-badge[data-tone="warning"] {
++  --status-color: var(--color-warning);
++}
++
++.ui-status-badge[data-tone="danger"] {
++  --status-color: var(--color-danger);
++}
++
++.ui-async-state {
++  display: grid;
++  justify-items: start;
++  gap: var(--space-3);
++  padding: var(--space-4);
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++  color: var(--color-text-main);
++  background: var(--color-surface);
++  box-shadow: var(--shadow-recessed);
++}
++
++.ui-async-state__message {
++  margin: 0;
++}
++
++@media (prefers-reduced-motion: reduce) {
++  .ui-button {
++    transition: none;
++  }
++}
+diff --git a/styles/tokens.css b/styles/tokens.css
+new file mode 100644
+index 0000000..d952803
+--- /dev/null
++++ b/styles/tokens.css
+@@ -0,0 +1,39 @@
++:root {
++  --color-surface: #e0e0e0;
++  --color-highlight: #ffffff;
++  --color-shadow-dark: #bebebe;
++  --color-text-main: #27313a;
++  --color-text-secondary: #66717a;
++  --color-text-secondary-accessible: #505a62;
++  --color-border: var(--color-text-secondary);
++  --color-primary: #356ae6;
++  --color-primary-text: #ffffff;
++  --color-success: #2f7d54;
++  --color-warning: #956d18;
++  --color-danger: #a43d42;
++
++  --shadow-raised: 0.375rem 0.375rem 0.75rem var(--color-shadow-dark),
++    -0.375rem -0.375rem 0.75rem var(--color-highlight);
++  --shadow-recessed: inset 0.25rem 0.25rem 0.5rem var(--color-shadow-dark),
++    inset -0.25rem -0.25rem 0.5rem var(--color-highlight);
++  --shadow-pressed: inset 0.125rem 0.125rem 0.25rem var(--color-shadow-dark),
++    inset -0.125rem -0.125rem 0.25rem var(--color-highlight);
++
++  --border-structural: 1px solid var(--color-border);
++  --radius-control: 0.5rem;
++  --radius-status: 0.375rem;
++  --space-1: 0.25rem;
++  --space-2: 0.5rem;
++  --space-3: 0.75rem;
++  --space-4: 1rem;
++  --space-6: 1.5rem;
++  --space-8: 2rem;
++  --font-size-sm: 0.875rem;
++  --line-height-tight: 1.35;
++  --line-height-base: 1.6;
++  --control-min-size: 2.75rem;
++  --focus-width: 2px;
++  --focus-offset: 2px;
++  --disabled-opacity: 0.62;
++  --motion-fast: 120ms;
++}
+diff --git a/tests/frontend/ui-primitives.test.tsx b/tests/frontend/ui-primitives.test.tsx
+new file mode 100644
+index 0000000..86ade0d
+--- /dev/null
++++ b/tests/frontend/ui-primitives.test.tsx
+@@ -0,0 +1,78 @@
++import React from "react";
++import { renderToStaticMarkup } from "react-dom/server";
++import { describe, expect, it } from "vitest";
++import { AsyncState } from "../../components/ui/AsyncState";
++import { Button } from "../../components/ui/Button";
++import { StatusBadge } from "../../components/ui/StatusBadge";
++import { TextField } from "../../components/ui/TextField";
++
++describe("Button", () => {
++  it("keeps a loading label perceivable and prevents duplicate activation", () => {
++    const markup = renderToStaticMarkup(<Button loading>Simpan perubahan</Button>);
++
++    expect(markup).toContain("disabled");
++    expect(markup).toContain('aria-busy="true"');
++    expect(markup).toContain("Sedang memproses");
++    expect(markup).toContain("Simpan perubahan");
++  });
++
++  it("preserves native disabled button semantics", () => {
++    const markup = renderToStaticMarkup(<Button disabled>Hapus batch</Button>);
++
++    expect(markup).toMatch(/^<button/);
++    expect(markup).toContain('type="button"');
++    expect(markup).toContain("disabled");
++  });
++});
++
++describe("TextField", () => {
++  it("wires its label, hint, and error to the native input", () => {
++    const markup = renderToStaticMarkup(
++      <TextField
++        id="student-id"
++        label="Student / Employee ID"
++        hint="Gunakan ID dari Certiport."
++        error="ID wajib diisi."
++      />,
++    );
++
++    expect(markup).toContain('<label for="student-id">Student / Employee ID</label>');
++    expect(markup).toContain('aria-describedby="student-id-hint student-id-error"');
++    expect(markup).toContain('aria-invalid="true"');
++    expect(markup).toContain('id="student-id-error"');
++    expect(markup).toContain('role="alert">ID wajib diisi.</');
++  });
++});
++
++describe("StatusBadge", () => {
++  it("always exposes status as text instead of colour alone", () => {
++    const markup = renderToStaticMarkup(<StatusBadge tone="success">Selesai</StatusBadge>);
++
++    expect(markup).toContain("Selesai");
++    expect(markup).toContain('data-tone="success"');
++  });
++});
++
++describe("AsyncState", () => {
++  it.each([
++    ["loading", "Data wisudawan sedang dimuat."],
++    ["empty", "Belum ada batch wisuda."],
++    ["error", "Data wisudawan gagal dimuat."],
++  ] as const)("renders a human-readable %s message", (variant, message) => {
++    const markup = renderToStaticMarkup(<AsyncState variant={variant} message={message} />);
++
++    expect(markup).toContain(message);
++  });
++
++  it("renders an optional recovery action", () => {
++    const markup = renderToStaticMarkup(
++      <AsyncState
++        variant="error"
++        message="Data wisudawan gagal dimuat."
++        action={<button type="button">Coba lagi</button>}
++      />,
++    );
++
++    expect(markup).toContain("Coba lagi");
++  });
++});

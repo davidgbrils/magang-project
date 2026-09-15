@@ -1,0 +1,841 @@
+diff --git a/.superpowers/sdd/2026-09-15-frontend-design-execution/task-3-report.md b/.superpowers/sdd/2026-09-15-frontend-design-execution/task-3-report.md
+new file mode 100644
+index 0000000..0fd5d4d
+--- /dev/null
++++ b/.superpowers/sdd/2026-09-15-frontend-design-execution/task-3-report.md
+@@ -0,0 +1,59 @@
++# Task 3 Report: Role-aware shell and authentication states
++
++## Hasil
++
++- Menambahkan shell reusable dengan sidebar dan topbar yang membedakan role `USER` dan `ADMIN`.
++- Menambahkan state auth bertipe `loading`, `authenticated`, `unauthenticated`, `forbidden`, dan `error`.
++- Menambahkan boundary auth client-side yang hanya mengenal endpoint terdokumentasi `GET /api/me` dan menerima auth adapter melalui props.
++- Login dan sign-out memakai callback adapter eksplisit. Implementasi default tidak menyimpan token dan tidak mengklaim autentikasi berhasil saat provider Supabase belum dipasang.
++- Menambahkan mobile menu berlabel, native link navigation, `aria-expanded`, `aria-controls`, `aria-current`, serta target kontrol minimal 44px.
++- `app/page.tsx` tidak diubah dan tetap hanya menautkan `/login`.
++
++## Bukti TDD
++
++### RED
++
++Command:
++
++```text
++npm test -- tests/frontend/auth-navigation.test.tsx
++```
++
++Hasil awal: exit 1. Vitest gagal memuat `../../components/layout/AppShell` karena shell belum ada. Kegagalan sesuai alasan yang dituju oleh test-first: fitur role-aware navigation belum diimplementasikan.
++
++### GREEN
++
++Command:
++
++```text
++npm test -- tests/frontend/auth-navigation.test.tsx
++```
++
++Hasil akhir: exit 0, 1 file lulus, 5 test lulus. Cakupan perilaku: tujuan USER, tujuan ADMIN, admin exclusion pada forbidden state, role yang terlihat, dan semantik menu mobile/keyboard.
++
++## Verifikasi akhir
++
++| Command | Hasil |
++|---|---|
++| `npm test -- tests/frontend/auth-navigation.test.tsx` | PASS, 5/5 test |
++| `npm test` | PASS, 3 file dan 21/21 test |
++| `npm run lint` | PASS, tanpa error atau warning ESLint |
++| `npm run typecheck` | PASS, TypeScript strict tanpa error |
++| `npm run build` | PASS, Next.js production build selesai dan `/login` ter-prerender |
++| `git diff --check` | PASS, tidak ada whitespace error |
++
++Build sempat menangkap dua boundary Next.js dan keduanya diperbaiki: named export yang tidak valid dari `page.tsx`, lalu function prop dari Server Component ke Client Component. Solusi akhirnya menempatkan form injectable di `features/auth/LoginForm.tsx` dan menjadikan page login client entry dengan default export tunggal.
++
++## Design read dan quality gate
++
++- Direction: baseline Stitch yang sudah disetujui, tactile surface `#E0E0E0`, primary `#356AE6`, raised/recessed/pressed depth.
++- Dials: ENERGY 2, RHYTHM 2, MOTION 1. Fokus visual berada pada active navigation dan judul route; motion hanya feedback kontrol singkat.
++- Hard gate PASS pada source/test: tidak ada gradient, glass, em dash, fabricated metric/testimonial/claim, dead button, token storage, atau service-role secret.
++- Accessibility PASS pada struktur otomatis: label input, live error, native links/buttons, menu label, expanded state, active-page state, visible global focus ring, dan 44px control minimum.
++- Responsive PASS pada source: menu mobile terpisah dari sidebar desktop, breakpoint tablet/desktop berbasis reflow, `minmax(0, 1fr)`, serta tidak ada fixed bottom navigation yang menutupi konten.
++
++Browser click-through dan visual comparison lintas viewport belum dijalankan karena Task 3 tidak menyediakan Playwright/browser harness; pemeriksaan visual penuh tetap menjadi gate Task 9. Karena route feature Task 4-8 belum dibuat, link shell mengikuti exact route map Task 3 tetapi halaman tujuan akan tersedia pada task berikutnya.
++
++## Batas integrasi auth
++
++Kontrak SDK Supabase browser belum tersedia pada dependency atau dokumen saat Task 3. Karena itu callback default login dan sign-out mengembalikan error konfigurasi yang terlihat, bukan membuat identitas/token palsu. Integrator berikutnya perlu menginjeksi adapter Supabase yang mengambil access token pada saat request, memanggil `GET /api/me`, dan menjalankan sign-out provider tanpa menyimpan token di local storage buatan sendiri.
+diff --git a/app/(protected)/layout.tsx b/app/(protected)/layout.tsx
+new file mode 100644
+index 0000000..2c311ee
+--- /dev/null
++++ b/app/(protected)/layout.tsx
+@@ -0,0 +1,11 @@
++"use client";
++
++import { usePathname } from "next/navigation";
++import React from "react";
++import { ProtectedAuthBoundary } from "../../features/auth/AuthState";
++
++export default function ProtectedLayout({ children }: Readonly<{ children: React.ReactNode }>) {
++  const pathname = usePathname();
++
++  return <ProtectedAuthBoundary pathname={pathname}>{children}</ProtectedAuthBoundary>;
++}
+diff --git a/app/login/page.tsx b/app/login/page.tsx
+index fa5435a..5e45b3c 100644
+--- a/app/login/page.tsx
++++ b/app/login/page.tsx
+@@ -1,14 +1,18 @@
++"use client";
++
++import React from "react";
++import { LoginForm } from "../../features/auth/LoginForm";
++import type { LoginAdapter } from "../../features/auth/auth-types";
++
++const missingLoginProvider: LoginAdapter = () =>
++  Promise.reject(new Error("Penyedia login belum dikonfigurasi."));
++
+ export default function LoginPage() {
+   return (
+-    <main>
++    <main className="login-page">
+       <h1>Masuk ke ITCC Wisuda Sync</h1>
+-      <form>
+-        <label htmlFor="email">Email ITCC</label>
+-        <input id="email" name="email" type="email" autoComplete="email" required />
+-        <label htmlFor="password">Kata sandi</label>
+-        <input id="password" name="password" type="password" autoComplete="current-password" required />
+-        <button type="submit">Masuk</button>
+-      </form>
++      <p>Gunakan akun yang telah diberi akses oleh administrator ITCC.</p>
++      <LoginForm onLogin={missingLoginProvider} />
+     </main>
+   );
+ }
+diff --git a/components/layout/AppShell.tsx b/components/layout/AppShell.tsx
+new file mode 100644
+index 0000000..8f8e2cb
+--- /dev/null
++++ b/components/layout/AppShell.tsx
+@@ -0,0 +1,25 @@
++import React, { type ReactNode } from "react";
++import type { UserRole } from "../../features/auth/auth-types";
++import { Sidebar } from "./Sidebar";
++import { Topbar } from "./Topbar";
++
++export interface AppShellProps {
++  role: UserRole;
++  activeRouteLabel: string;
++  onSignOut: () => void | Promise<void>;
++  children: ReactNode;
++}
++
++export function AppShell({ role, activeRouteLabel, onSignOut, children }: AppShellProps) {
++  return (
++    <div className="app-shell">
++      <Sidebar role={role} activeRouteLabel={activeRouteLabel} />
++      <div className="app-shell__workspace">
++        <Topbar role={role} activeRouteLabel={activeRouteLabel} onSignOut={onSignOut} />
++        <main className="app-shell__content" id="main-content">
++          {children}
++        </main>
++      </div>
++    </div>
++  );
++}
+diff --git a/components/layout/Sidebar.tsx b/components/layout/Sidebar.tsx
+new file mode 100644
+index 0000000..ef8e40a
+--- /dev/null
++++ b/components/layout/Sidebar.tsx
+@@ -0,0 +1,79 @@
++"use client";
++
++import Link from "next/link";
++import React, { useState } from "react";
++import type { UserRole } from "../../features/auth/auth-types";
++
++type NavigationItem = {
++  href: string;
++  label: string;
++};
++
++export const NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = {
++  USER: [
++    { href: "/user/dashboard", label: "Dashboard operasional" },
++    { href: "/user/graduation-upload", label: "Upload berkas wisuda" },
++    { href: "/user/reference-selection", label: "Pilih batch referensi" },
++  ],
++  ADMIN: [
++    { href: "/admin/dashboard", label: "Dashboard administrator" },
++    { href: "/admin/import/sitasi", label: "Import SITASI" },
++    { href: "/admin/import/certiport", label: "Import Certiport" },
++    { href: "/admin/reference-batches", label: "Batch referensi" },
++    { href: "/admin/matching-rules", label: "Aturan matching" },
++    { href: "/admin/users", label: "Pengguna dan peran" },
++    { href: "/admin/audit-logs", label: "Audit log" },
++  ],
++};
++
++export interface SidebarProps {
++  role: UserRole;
++  activeRouteLabel: string;
++}
++
++export function Sidebar({ role, activeRouteLabel }: SidebarProps) {
++  const [isOpen, setIsOpen] = useState(false);
++
++  return (
++    <aside className="app-sidebar">
++      <div className="app-sidebar__identity">
++        <span aria-hidden="true" className="app-sidebar__mark">ITCC</span>
++        <span>Wisuda Sync</span>
++      </div>
++      <button
++        type="button"
++        className="app-sidebar__menu-button"
++        aria-controls="app-navigation"
++        aria-expanded={isOpen}
++        aria-label={isOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
++        onClick={() => setIsOpen((current) => !current)}
++      >
++        Menu
++      </button>
++      <nav
++        id="app-navigation"
++        aria-label="Navigasi utama"
++        className="app-sidebar__navigation"
++        data-mobile-open={isOpen}
++      >
++        <ul>
++          {NAVIGATION_BY_ROLE[role].map((item) => {
++            const isActive = item.label === activeRouteLabel;
++
++            return (
++              <li key={item.href}>
++                <Link
++                  href={item.href}
++                  aria-current={isActive ? "page" : undefined}
++                  onClick={() => setIsOpen(false)}
++                >
++                  {item.label}
++                </Link>
++              </li>
++            );
++          })}
++        </ul>
++      </nav>
++    </aside>
++  );
++}
+diff --git a/components/layout/Topbar.tsx b/components/layout/Topbar.tsx
+new file mode 100644
+index 0000000..dfbce57
+--- /dev/null
++++ b/components/layout/Topbar.tsx
+@@ -0,0 +1,47 @@
++"use client";
++
++import React, { useState } from "react";
++import type { UserRole } from "../../features/auth/auth-types";
++import { Button } from "../ui/Button";
++
++export interface TopbarProps {
++  role: UserRole;
++  activeRouteLabel: string;
++  onSignOut: () => void | Promise<void>;
++}
++
++export function Topbar({ role, activeRouteLabel, onSignOut }: TopbarProps) {
++  const [isSigningOut, setIsSigningOut] = useState(false);
++  const [signOutError, setSignOutError] = useState<string | null>(null);
++
++  async function handleSignOut() {
++    setIsSigningOut(true);
++    setSignOutError(null);
++
++    try {
++      await onSignOut();
++    } catch (error) {
++      setSignOutError(error instanceof Error ? error.message : "Gagal keluar dari sistem.");
++      setIsSigningOut(false);
++    }
++  }
++
++  return (
++    <header className="app-topbar">
++      <div className="app-topbar__context">
++        <span className="app-topbar__mobile-product">ITCC Wisuda Sync</span>
++        <strong>{activeRouteLabel}</strong>
++      </div>
++      <div className="app-topbar__session">
++        <span>
++          <span className="ui-visually-hidden">Peran saat ini: </span>
++          {role === "ADMIN" ? "Admin" : "User"}
++        </span>
++        <Button variant="quiet" loading={isSigningOut} onClick={handleSignOut}>
++          Keluar
++        </Button>
++      </div>
++      {signOutError ? <p className="app-topbar__error" role="alert">{signOutError}</p> : null}
++    </header>
++  );
++}
+diff --git a/features/auth/AuthState.tsx b/features/auth/AuthState.tsx
+new file mode 100644
+index 0000000..c097b93
+--- /dev/null
++++ b/features/auth/AuthState.tsx
+@@ -0,0 +1,115 @@
++"use client";
++
++import Link from "next/link";
++import React, { useEffect, useState, type ReactNode } from "react";
++import { AppShell } from "../../components/layout/AppShell";
++import { AsyncState } from "../../components/ui/AsyncState";
++import { Button } from "../../components/ui/Button";
++import { ApiClientError, request } from "../../lib/api-client";
++import type { AuthAdapter, AuthStateValue, AuthUser } from "./auth-types";
++
++export interface AuthStateProps {
++  state: AuthStateValue;
++  onSignOut: () => void | Promise<void>;
++  children: ReactNode;
++}
++
++export function AuthState({ state, onSignOut, children }: AuthStateProps) {
++  switch (state.status) {
++    case "loading":
++      return <AsyncState variant="loading" message="Sesi sedang diperiksa." />;
++    case "unauthenticated":
++      return (
++        <section className="auth-state" aria-labelledby="auth-required-title">
++          <h1 id="auth-required-title">Sesi diperlukan</h1>
++          <p>Masuk kembali untuk membuka workspace ITCC Wisuda Sync.</p>
++          <Link className="auth-state__link" href="/login">Ke halaman login</Link>
++        </section>
++      );
++    case "forbidden":
++      return (
++        <section className="auth-state" aria-labelledby="auth-forbidden-title">
++          <h1 id="auth-forbidden-title">Akses tidak diizinkan</h1>
++          <p>Peran akun ini tidak memiliki akses ke halaman tersebut.</p>
++          <Button variant="secondary" onClick={onSignOut}>Keluar dari akun</Button>
++        </section>
++      );
++    case "error":
++      return <AsyncState variant="error" message={state.message} />;
++    case "authenticated":
++      return <>{children}</>;
++  }
++}
++
++const apiMeAdapter: AuthAdapter = {
++  getCurrentUser: () => request<AuthUser>("/api/me"),
++  signOut: () => Promise.reject(new Error("Penyedia sign-out belum dikonfigurasi.")),
++};
++
++const routeLabels: Record<string, string> = {
++  "/user/dashboard": "Dashboard operasional",
++  "/user/graduation-upload": "Upload berkas wisuda",
++  "/user/reference-selection": "Pilih batch referensi",
++  "/admin/dashboard": "Dashboard administrator",
++  "/admin/import/sitasi": "Import SITASI",
++  "/admin/import/certiport": "Import Certiport",
++  "/admin/reference-batches": "Batch referensi",
++  "/admin/matching-rules": "Aturan matching",
++  "/admin/users": "Pengguna dan peran",
++  "/admin/audit-logs": "Audit log",
++};
++
++export interface ProtectedAuthBoundaryProps {
++  children: ReactNode;
++  pathname?: string;
++  adapter?: AuthAdapter;
++}
++
++export function ProtectedAuthBoundary({
++  children,
++  pathname = "",
++  adapter = apiMeAdapter,
++}: ProtectedAuthBoundaryProps) {
++  const [state, setState] = useState<AuthStateValue>({ status: "loading" });
++
++  useEffect(() => {
++    let isCurrent = true;
++
++    adapter.getCurrentUser().then(
++      (user) => {
++        if (isCurrent) setState({ status: "authenticated", user });
++      },
++      (error: unknown) => {
++        if (!isCurrent) return;
++        if (error instanceof ApiClientError && error.status === 401) {
++          setState({ status: "unauthenticated" });
++        } else if (error instanceof ApiClientError && error.status === 403) {
++          setState({ status: "forbidden" });
++        } else {
++          setState({ status: "error", message: "Sesi gagal diperiksa. Muat ulang halaman untuk mencoba lagi." });
++        }
++      },
++    );
++
++    return () => {
++      isCurrent = false;
++    };
++  }, [adapter]);
++
++  async function handleSignOut() {
++    await adapter.signOut();
++    setState({ status: "unauthenticated" });
++  }
++
++  const content = state.status === "authenticated" ? (
++    <AppShell
++      role={state.user.role}
++      activeRouteLabel={routeLabels[pathname] ?? "Workspace terlindungi"}
++      onSignOut={handleSignOut}
++    >
++      {children}
++    </AppShell>
++  ) : null;
++
++  return <AuthState state={state} onSignOut={handleSignOut}>{content}</AuthState>;
++}
+diff --git a/features/auth/LoginForm.tsx b/features/auth/LoginForm.tsx
+new file mode 100644
+index 0000000..f8c645a
+--- /dev/null
++++ b/features/auth/LoginForm.tsx
+@@ -0,0 +1,69 @@
++"use client";
++
++import React, { FormEvent, useState } from "react";
++import { Button } from "../../components/ui/Button";
++import { TextField } from "../../components/ui/TextField";
++import type { LoginAdapter } from "./auth-types";
++
++export interface LoginFormProps {
++  onLogin: LoginAdapter;
++}
++
++export function LoginForm({ onLogin }: LoginFormProps) {
++  const [isSubmitting, setIsSubmitting] = useState(false);
++  const [error, setError] = useState<string | null>(null);
++
++  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
++    event.preventDefault();
++    setIsSubmitting(true);
++    setError(null);
++
++    const data = new FormData(event.currentTarget);
++
++    try {
++      await onLogin({
++        email: String(data.get("email") ?? ""),
++        password: String(data.get("password") ?? ""),
++      });
++    } catch (loginError) {
++      setError(
++        loginError instanceof Error
++          ? loginError.message
++          : "Login gagal. Periksa kembali akun Anda.",
++      );
++    } finally {
++      setIsSubmitting(false);
++    }
++  }
++
++  return (
++    <form className="login-form" onSubmit={handleSubmit} aria-busy={isSubmitting || undefined}>
++      <TextField
++        id="email"
++        name="email"
++        type="email"
++        label="Email ITCC"
++        autoComplete="email"
++        disabled={isSubmitting}
++        required
++      />
++      <TextField
++        id="password"
++        name="password"
++        type="password"
++        label="Kata sandi"
++        autoComplete="current-password"
++        disabled={isSubmitting}
++        required
++      />
++      {error ? (
++        <p className="login-form__error" role="alert">
++          {error}
++        </p>
++      ) : null}
++      <Button type="submit" loading={isSubmitting}>
++        Masuk
++      </Button>
++    </form>
++  );
++}
+diff --git a/features/auth/auth-types.ts b/features/auth/auth-types.ts
+new file mode 100644
+index 0000000..5c0d132
+--- /dev/null
++++ b/features/auth/auth-types.ts
+@@ -0,0 +1,27 @@
++export type UserRole = "USER" | "ADMIN";
++
++export type AuthUser = {
++  id: string;
++  email: string;
++  displayName: string;
++  role: UserRole;
++};
++
++export type AuthStateValue =
++  | { status: "loading" }
++  | { status: "authenticated"; user: AuthUser }
++  | { status: "unauthenticated" }
++  | { status: "forbidden" }
++  | { status: "error"; message: string };
++
++export type AuthAdapter = {
++  getCurrentUser: () => Promise<AuthUser>;
++  signOut: () => Promise<void>;
++};
++
++export type LoginCredentials = {
++  email: string;
++  password: string;
++};
++
++export type LoginAdapter = (credentials: LoginCredentials) => Promise<void>;
+diff --git a/styles/globals.css b/styles/globals.css
+index e1ed677..fcf4af3 100644
+--- a/styles/globals.css
++++ b/styles/globals.css
+@@ -211,3 +211,229 @@ form {
+     transition: none;
+   }
+ }
++
++.app-shell {
++  min-height: 100dvh;
++}
++
++.app-sidebar {
++  position: relative;
++  z-index: 2;
++  display: grid;
++  grid-template-columns: minmax(0, 1fr) auto;
++  align-items: center;
++  gap: var(--space-3);
++  padding: var(--space-3) var(--space-4);
++  border-bottom: var(--border-structural);
++  background: var(--color-surface);
++  box-shadow: var(--shadow-raised);
++}
++
++.app-sidebar__identity {
++  display: flex;
++  align-items: baseline;
++  gap: var(--space-2);
++  min-width: 0;
++  font-weight: 700;
++}
++
++.app-sidebar__mark {
++  color: var(--color-primary);
++  font-size: var(--font-size-sm);
++  letter-spacing: 0.04em;
++}
++
++.app-sidebar__menu-button {
++  min-width: var(--control-min-size);
++  min-height: var(--control-min-size);
++  padding-inline: var(--space-3);
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++  color: var(--color-text-main);
++  background: var(--color-surface);
++  box-shadow: var(--shadow-raised);
++  cursor: pointer;
++}
++
++.app-sidebar__menu-button:active {
++  box-shadow: var(--shadow-pressed);
++}
++
++.app-sidebar__navigation {
++  display: none;
++  grid-column: 1 / -1;
++}
++
++.app-sidebar__navigation[data-mobile-open="true"] {
++  display: block;
++}
++
++.app-sidebar__navigation ul {
++  display: grid;
++  gap: var(--space-2);
++  padding: var(--space-2) 0 0;
++  margin: 0;
++  list-style: none;
++}
++
++.app-sidebar__navigation a,
++.auth-state__link {
++  display: flex;
++  align-items: center;
++  min-height: var(--control-min-size);
++  padding: var(--space-2) var(--space-3);
++  border: 1px solid transparent;
++  border-radius: var(--radius-control);
++  color: var(--color-text-main);
++  text-decoration: none;
++}
++
++.app-sidebar__navigation a[aria-current="page"] {
++  border-color: var(--color-border);
++  color: var(--color-primary);
++  background: var(--color-surface);
++  box-shadow: var(--shadow-pressed);
++  font-weight: 700;
++}
++
++.app-topbar {
++  display: grid;
++  grid-template-columns: minmax(0, 1fr) auto;
++  align-items: center;
++  gap: var(--space-3);
++  padding: var(--space-3) var(--space-4);
++  border-bottom: var(--border-structural);
++}
++
++.app-topbar__context,
++.app-topbar__session {
++  display: flex;
++  align-items: center;
++  min-width: 0;
++}
++
++.app-topbar__context {
++  flex-direction: column;
++  align-items: flex-start;
++  line-height: var(--line-height-tight);
++}
++
++.app-topbar__mobile-product {
++  color: var(--color-text-secondary-accessible);
++  font-size: var(--font-size-sm);
++}
++
++.app-topbar__session {
++  gap: var(--space-2);
++}
++
++.app-topbar__error {
++  grid-column: 1 / -1;
++  margin: 0;
++  color: var(--color-danger);
++  font-size: var(--font-size-sm);
++}
++
++.app-shell__content {
++  width: min(100%, var(--content-max-width));
++  min-width: 0;
++}
++
++.auth-state,
++.login-page {
++  display: grid;
++  align-content: start;
++  gap: var(--space-4);
++  width: min(calc(100% - (2 * var(--space-6))), var(--form-max-width));
++  margin: clamp(var(--space-8), 10vh, 6rem) auto;
++  padding: var(--space-6);
++  border: var(--border-structural);
++  border-radius: var(--radius-control);
++  background: var(--color-surface);
++  box-shadow: var(--shadow-raised);
++}
++
++.auth-state h1,
++.auth-state p,
++.login-page h1,
++.login-page p {
++  margin: 0;
++}
++
++.auth-state__link {
++  width: fit-content;
++  border-color: var(--color-primary);
++  color: var(--color-primary);
++  box-shadow: var(--shadow-raised);
++}
++
++.login-form {
++  width: 100%;
++  gap: var(--space-4);
++}
++
++.login-form__error {
++  color: var(--color-danger);
++}
++
++@media (hover: hover) and (pointer: fine) {
++  .app-sidebar__navigation a:hover,
++  .auth-state__link:hover {
++    color: var(--color-primary);
++  }
++}
++
++@media (min-width: 48rem) {
++  .app-shell {
++    display: grid;
++    grid-template-columns: 15rem minmax(0, 1fr);
++  }
++
++  .app-sidebar {
++    position: sticky;
++    top: 0;
++    align-self: start;
++    grid-template-columns: 1fr;
++    align-content: start;
++    min-height: 100dvh;
++    padding: var(--space-6) var(--space-4);
++    border-right: var(--border-structural);
++    border-bottom: 0;
++  }
++
++  .app-sidebar__menu-button {
++    display: none;
++  }
++
++  .app-sidebar__navigation {
++    display: block;
++    grid-column: auto;
++  }
++
++  .app-sidebar__navigation ul {
++    padding-top: var(--space-6);
++  }
++
++  .app-topbar {
++    min-height: 4.5rem;
++    padding-inline: var(--space-6);
++  }
++
++  .app-topbar__context {
++    display: block;
++  }
++
++  .app-topbar__mobile-product {
++    display: none;
++  }
++}
++
++@media (min-width: 70rem) {
++  .app-shell {
++    grid-template-columns: 17rem minmax(0, 1fr);
++  }
++
++  .app-topbar {
++    padding-inline: var(--space-8);
++  }
++}
+diff --git a/tests/frontend/auth-navigation.test.tsx b/tests/frontend/auth-navigation.test.tsx
+new file mode 100644
+index 0000000..a7a95b7
+--- /dev/null
++++ b/tests/frontend/auth-navigation.test.tsx
+@@ -0,0 +1,90 @@
++import React from "react";
++import { renderToStaticMarkup } from "react-dom/server";
++import { describe, expect, it, vi } from "vitest";
++import { AppShell } from "../../components/layout/AppShell";
++import { Sidebar } from "../../components/layout/Sidebar";
++import { AuthState } from "../../features/auth/AuthState";
++
++const userDestinations = [
++  "/user/dashboard",
++  "/user/graduation-upload",
++  "/user/reference-selection",
++];
++
++const adminDestinations = [
++  "/admin/dashboard",
++  "/admin/import/sitasi",
++  "/admin/import/certiport",
++  "/admin/reference-batches",
++  "/admin/matching-rules",
++  "/admin/users",
++  "/admin/audit-logs",
++];
++
++describe("role-aware navigation", () => {
++  it("renders only USER destinations for an operator", () => {
++    const markup = renderToStaticMarkup(
++      <Sidebar role="USER" activeRouteLabel="Dashboard operasional" />,
++    );
++
++    for (const destination of userDestinations) {
++      expect(markup).toContain(`href="${destination}"`);
++    }
++    for (const destination of adminDestinations) {
++      expect(markup).not.toContain(`href="${destination}"`);
++    }
++  });
++
++  it("renders every confirmed ADMIN destination without USER destinations", () => {
++    const markup = renderToStaticMarkup(
++      <Sidebar role="ADMIN" activeRouteLabel="Dashboard administrator" />,
++    );
++
++    for (const destination of adminDestinations) {
++      expect(markup).toContain(`href="${destination}"`);
++    }
++    for (const destination of userDestinations) {
++      expect(markup).not.toContain(`href="${destination}"`);
++    }
++  });
++
++  it("does not expose protected children or admin navigation in a forbidden state", () => {
++    const markup = renderToStaticMarkup(
++      <AuthState state={{ status: "forbidden" }} onSignOut={vi.fn()}>
++        <Sidebar role="ADMIN" activeRouteLabel="Dashboard administrator" />
++      </AuthState>,
++    );
++
++    expect(markup).toContain("Akses tidak diizinkan");
++    expect(markup).not.toContain("/admin/");
++  });
++
++  it("keeps the current role visible in the authenticated shell", () => {
++    const markup = renderToStaticMarkup(
++      <AppShell
++        role="USER"
++        activeRouteLabel="Dashboard operasional"
++        onSignOut={vi.fn()}
++      >
++        <p>Konten utama</p>
++      </AppShell>,
++    );
++
++    expect(markup).toContain("Peran saat ini");
++    expect(markup).toContain("User");
++    expect(markup).toContain("Dashboard operasional");
++  });
++
++  it("uses a labelled button and native navigation semantics for the mobile menu", () => {
++    const markup = renderToStaticMarkup(
++      <Sidebar role="USER" activeRouteLabel="Dashboard operasional" />,
++    );
++
++    expect(markup).toContain('<button type="button"');
++    expect(markup).toContain('aria-controls="app-navigation"');
++    expect(markup).toContain('aria-expanded="false"');
++    expect(markup).toContain("Buka menu navigasi");
++    expect(markup).toContain('<nav id="app-navigation" aria-label="Navigasi utama"');
++    expect(markup).toMatch(/<a[^>]+href="\/user\/dashboard"/);
++  });
++});
