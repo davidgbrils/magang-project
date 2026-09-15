@@ -1,0 +1,12 @@
+create index reference_batch_files_batch_idx on public.reference_batch_files (reference_batch_id);
+create index sitasi_records_batch_idx on public.sitasi_records (reference_batch_id);
+create index certiport_records_batch_idx on public.certiport_records (reference_batch_id);
+create index graduation_uploads_owner_idx on public.graduation_uploads (uploaded_by);
+create index sync_jobs_graduation_upload_idx on public.sync_jobs (graduation_upload_id);
+create index sync_jobs_sitasi_batch_idx on public.sync_jobs (sitasi_batch_id);
+create index sync_jobs_certiport_batch_idx on public.sync_jobs (certiport_batch_id);
+create index sync_job_rows_job_idx on public.sync_job_rows (sync_job_id);
+create index review_decisions_decided_by_idx on public.review_decisions (decided_by);
+create index generated_outputs_job_idx on public.generated_outputs (sync_job_id);
+create index generated_outputs_generated_by_idx on public.generated_outputs (generated_by);
+create index matching_rules_updated_by_idx on public.matching_rules (updated_by);
