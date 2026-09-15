@@ -10,14 +10,12 @@ import {
   generateSyncOutput,
   getOutputDownload,
   getSyncJobPreview,
-  getSyncJobRows,
   reviewSyncRow,
   type GeneratedOutput,
   type OutputDownload,
   type ReviewStatus,
   type SyncRow,
   type SyncRowStatus,
-  type SyncRowsQuery,
   type SyncRowsResponse,
 } from "./synchronization-api";
 
@@ -119,27 +117,8 @@ export function SyncPreviewPanel({ jobId, rows: suppliedRows, page: suppliedPage
   const [status, setStatus] = useState<SyncRowStatus | "">("");
   const [search, setSearch] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
-  const [state, setState] = useState<"loading" | "ready" | "error" | "forbidden">(controlled ? "ready" : "loading");
-  const [error, setError] = useState<string | null>(null);
-  const [retry, setRetry] = useState(0);
+  const [state] = useState<"ready" | "unavailable">(controlled ? "ready" : "unavailable");
   const [reviewRow, setReviewRow] = useState<SyncRow | null>(null);
-
-  useEffect(() => {
-    if (controlled) return;
-    if (!jobId.trim()) { setState("ready"); return; }
-    const controller = new AbortController();
-    setState("loading");
-    const query: SyncRowsQuery = { status: status || undefined, search: submittedSearch || undefined, page, pageSize };
-    getSyncJobRows(jobId, query, controller.signal).then((next) => {
-      if (controller.signal.aborted) return;
-      setRows(next.items); setPage(next.page); setPageSize(next.pageSize); setTotal(next.total); setState("ready"); setError(null);
-    }, (caughtError) => {
-      if (controller.signal.aborted) return;
-      setError(apiMessage(caughtError, "Baris hasil sinkronisasi gagal dimuat."));
-      setState(caughtError instanceof ApiClientError && caughtError.status === 403 ? "forbidden" : "error");
-    });
-    return () => controller.abort();
-  }, [controlled, jobId, page, pageSize, retry, status, submittedSearch]);
 
   function submitSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -154,10 +133,7 @@ export function SyncPreviewPanel({ jobId, rows: suppliedRows, page: suppliedPage
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   if (!jobId.trim()) return <AsyncState variant="empty" message="ID sinkronisasi belum tersedia." />;
-  if (state === "loading") return <AsyncState variant="loading" message="Hasil sinkronisasi sedang dimuat." />;
-  if (state === "forbidden") return <AsyncState variant="error" message={error ?? "Anda tidak memiliki akses ke hasil sinkronisasi ini."} />;
-  if (state === "error") return <AsyncState variant="error" message={error ?? "Hasil sinkronisasi gagal dimuat."} action={<Button variant="secondary" onClick={() => setRetry((value) => value + 1)}>Coba lagi</Button>} />;
-
+  if (state === "unavailable") return <section className="sync-results" aria-labelledby="sync-results-unavailable-title"><div className="sync-results__intro"><p className="graduation-upload__eyebrow">Hasil sinkronisasi</p><h1 id="sync-results-unavailable-title">Daftar baris belum tersedia</h1></div><AsyncState variant="empty" message="Format response daftar baris belum disahkan di kontrak backend. Preview manifest tetap dapat dibuka dari halaman preview." /></section>;
   return <section className="sync-results" aria-labelledby="sync-results-title">
     <div className="sync-results__intro"><p className="graduation-upload__eyebrow">Hasil sinkronisasi</p><h1 id="sync-results-title">Preview perubahan</h1><p>{total} baris dari server. Tidak ada data hasil yang dibuat di sisi klien.</p></div>
     <form className="sync-results__filters" onSubmit={submitSearch}>

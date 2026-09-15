@@ -84,6 +84,12 @@ describe("sync results states and accessible review", () => {
     expect(markup).toContain("21 baris");
   });
 
+  it("keeps live pagination unavailable until the backend response contract is finalized", () => {
+    const markup = renderToStaticMarkup(<SyncPreviewPanel jobId="job-1" />);
+    expect(markup).toContain("Format response daftar baris belum disahkan");
+    expect(markup).not.toContain("Terapkan pencarian");
+  });
+
   it("renders a keyboard-operable review dialog with a close action", () => {
     const markup = renderToStaticMarkup(<SyncReviewDialog row={row} onClose={() => undefined} />);
     expect(markup).toContain('role="dialog"');

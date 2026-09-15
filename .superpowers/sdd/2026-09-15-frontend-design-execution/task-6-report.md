@@ -38,3 +38,9 @@ The frontend was checked against the current read-only backend contract at `C:\U
 - Added an empty `jobId` guard to output so generation cannot run without an identifier.
 
 Review-fix focused verification: `npm test -- --run tests/frontend/sync-results.test.tsx tests/frontend/sync-run.test.tsx` — 21/21 pass.
+
+## Pagination contract follow-up
+
+The live uncontrolled row panel no longer calls `GET /api/sync-jobs/{jobId}/rows` while the backend `PaginatedRows` JSON schema is unspecified. It renders an explicit unavailable state. `getSyncJobRows()` remains available only through the named `normalizeSyncRowsResponse()` adapter boundary, which rejects unknown payloads; controlled rows/results can still render the table for integration and tests.
+
+Follow-up focused verification: `npm test -- --run tests/frontend/sync-results.test.tsx tests/frontend/sync-run.test.tsx` — 22/22 pass. `rg -n "—" app components features styles` — no production UI matches.
