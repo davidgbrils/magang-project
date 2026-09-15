@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "project": "magang-project",
+  "skills": [
+    {
+      "name": "i-have-adhd",
+      "source": "https://github.com/ayghri/i-have-adhd",
+      "localPath": "../skills/i-have-adhd"
+    },
+    {
+      "name": "caveman",
+      "source": "https://github.com/JuliusBrussee/caveman",
+      "localPath": "../skills/caveman"
+    },
+    {
+      "name": "caveman-commit",
+      "source": "https://github.com/JuliusBrussee/caveman",
+      "localPath": "../skills/caveman-commit"
+    },
+    {
+      "name": "caveman-review",
+      "source": "https://github.com/JuliusBrussee/caveman",
+      "localPath": "../skills/caveman-review"
+    },
+    {
+      "name": "caveman-compress",
+      "source": "https://github.com/JuliusBrussee/caveman",
+      "localPath": "../skills/caveman-compress"
+    }
+  ],
+  "environmentPlugins": [
+    "antislop",
+    "Ponytail",
+    "Superpowers",
+    "ui-ux-pro-max"
+  ]
+}
