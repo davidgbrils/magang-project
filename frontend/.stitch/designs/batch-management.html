@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><title>ITCC Wisuda Sync - Institut Teknologi PLN</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; } .neu-raised { box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff; border: 1px solid rgba(209, 213, 219, 0.6); } .neu-recessed { box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff; border: 1px solid rgba(190, 190, 190, 0.4); } .neu-pill-active { box-shadow: 3px 3px 6px #bebebe, -3px -3px 6px #ffffff; } .neu-icon-btn { box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff; border: 1px solid rgba(209, 213, 219, 0.6); }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "shadow-light": "#ffffff", "primary": "#0650cc", "border-subtle": "#d1d5db", "inverse-on-surface": "#f1f1f1", "surface-container-lowest": "#ffffff", "surface-variant": "#e2e2e2", "surface-bright": "#f9f9f9", "on-background": "#1a1c1c", "on-error-container": "#93000a", "secondary": "#556068", "on-secondary-fixed": "#121d24", "on-tertiary-container": "#fff7f5", "on-secondary-container": "#59646d", "surface-container-low": "#f4f3f3", "primary-container": "#356ae6", "outline": "#737685", "surface-container-high": "#e8e8e8", "tertiary-container": "#bc5300", "text-main": "#27313a", "on-primary-container": "#f9f7ff", "secondary-fixed-dim": "#bdc8d2", "text-secondary": "#66717a", "secondary-fixed": "#d9e4ee", "on-primary-fixed-variant": "#003ea6", "on-secondary-fixed-variant": "#3d4850", "on-primary-fixed": "#00174a", "on-tertiary-fixed-variant": "#773200", "inverse-primary": "#b3c5ff", "surface": "#f9f9f9", "on-error": "#ffffff", "surface-base": "#e0e0e0", "warning": "#956d18", "on-surface-variant": "#434654", "on-tertiary-fixed": "#331100", "error": "#ba1a1a", "surface-tint": "#1555d1", "secondary-container": "#d6e1eb", "success": "#2f7d54", "tertiary-fixed-dim": "#ffb68f", "outline-variant": "#c3c6d6", "tertiary-fixed": "#ffdbca", "on-primary": "#ffffff", "on-secondary": "#ffffff", "background": "#f9f9f9", "error-container": "#ffdad6", "tertiary": "#954100", "surface-container": "#eeeeee", "danger": "#a43d42", "surface-dim": "#dadada", "on-tertiary": "#ffffff", "inverse-surface": "#2f3131", "primary-fixed": "#dbe1ff", "surface-container-highest": "#e2e2e2", "shadow-dark": "#bebebe", "on-surface": "#1a1c1c", "primary-fixed-dim": "#b3c5ff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter-sm": "1rem", "space-lg": "1.5rem", "margin-sm": "1rem", "space-md": "1rem", "space-sm": "0.5rem", "margin": "2rem", "space-xs": "0.25rem", "space-xl": "2rem", "gutter": "1.5rem" }, "fontFamily": { "label-sm": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "body-bold": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "title-sm": ["Plus Jakarta Sans"], "code-tabular": ["JetBrains Mono"], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"] }, "fontSize": { "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-bold": ["14px", { "lineHeight": "22px", "fontWeight": "600" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "title-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "code-tabular": ["13px", { "lineHeight": "18px", "fontWeight": "500" }], "headline-xl-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }] } } } };</script></head><body class="bg-surface-base font-body-md text-text-main antialiased selection:bg-primary-fixed selection:text-on-primary-fixed"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-base z-50 flex flex-col justify-between border-r border-border-subtle/70"><div class="flex flex-col h-full"><div class="h-16 px-space-md flex items-center justify-between border-b border-border-subtle/50 bg-surface-base"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-lg bg-surface-base neu-raised flex items-center justify-center"><span class="material-symbols-outlined text-primary text-[22px]">sync_saved_locally</span></div><div class="flex flex-col"><span class="font-title-sm text-title-sm text-text-main leading-tight">ITCC Wisuda</span><span class="font-label-sm text-label-sm text-text-secondary tracking-wide uppercase">Institut Teknologi PLN</span></div></div><div class="neu-pill-active px-space-xs py-0.5 rounded bg-surface-base border border-border-subtle/60"><span class="font-code-tabular text-[11px] font-semibold text-primary">v2.4</span></div></div><div class="p-space-md pb-space-sm"><div class="neu-recessed p-1 rounded-lg flex items-center justify-between bg-surface-base gap-1"><button class="flex-1 py-1.5 px-space-sm rounded-md bg-surface-base neu-pill-active font-label-md text-label-md text-primary flex items-center justify-center gap-space-xs transition-all" type="button"><span class="material-symbols-outlined text-[16px]">badge</span><span>Operator</span></button><button class="flex-1 py-1.5 px-space-sm rounded-md font-label-md text-label-md text-text-secondary hover:text-text-main flex items-center justify-center gap-space-xs transition-all" type="button"><span class="material-symbols-outlined text-[16px]">admin_panel_settings</span><span>Admin</span></button></div></div><div class="flex-1 overflow-y-auto px-space-md py-space-sm space-y-space-md"><div class="space-y-space-xs"><div class="px-space-sm py-space-xs flex items-center justify-between"><span class="font-label-sm text-label-sm text-text-secondary font-bold uppercase tracking-wider">Modul Operator</span><span class="w-2 h-2 rounded-full bg-success ring-2 ring-surface-base"></span></div><nav class="space-y-1" data-active-classes="neu-recessed text-primary font-body-bold bg-surface-base"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="beranda" href="#"><span class="material-symbols-outlined text-[19px]">space_dashboard</span><span class="font-body-md text-body-md">Beranda</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="sinkronisasi-baru" href="#"><span class="material-symbols-outlined text-[19px]">published_with_changes</span><span class="font-body-md text-body-md">Sinkronisasi Baru</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="review-data" href="#"><span class="material-symbols-outlined text-[19px]">fact_check</span><span class="font-body-md text-body-md">Review Data</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="riwayat-sync" href="#"><span class="material-symbols-outlined text-[19px]">manage_history</span><span class="font-body-md text-body-md">Riwayat Sync</span></a></nav></div><div class="space-y-space-xs pt-space-xs border-t border-border-subtle/50"><div class="px-space-sm py-space-xs flex items-center justify-between"><span class="font-label-sm text-label-sm text-text-secondary font-bold uppercase tracking-wider">Administrator ITCC</span><span class="font-code-tabular text-[10px] text-primary bg-secondary-fixed px-1.5 py-0.5 rounded">SYS</span></div><nav class="space-y-1" data-active-classes="neu-recessed text-primary font-body-bold bg-surface-base"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="ringkasan-admin" href="#"><span class="material-symbols-outlined text-[19px]">analytics</span><span class="font-body-md text-body-md">Ringkasan Admin</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="import-sitasi" href="#"><span class="material-symbols-outlined text-[19px]">upload_file</span><span class="font-body-md text-body-md">Import SITASI</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="import-certiport" href="#"><span class="material-symbols-outlined text-[19px]">workspace_premium</span><span class="font-body-md text-body-md">Import Certiport</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg transition-all neu-recessed text-primary font-body-bold bg-surface-base" data-path="data-referensi" href="#"><span class="material-symbols-outlined text-[19px]">database</span><span class="font-body-md text-body-md">Data Referensi</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="aturan-matching" href="#"><span class="material-symbols-outlined text-[19px]">rule_settings</span><span class="font-body-md text-body-md">Aturan Matching</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="manajemen-user" href="#"><span class="material-symbols-outlined text-[19px]">group_add</span><span class="font-body-md text-body-md">Manajemen User</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="audit-log" href="#"><span class="material-symbols-outlined text-[19px]">security_update_good</span><span class="font-body-md text-body-md">Audit Log</span></a></nav></div></div><div class="p-space-md border-t border-border-subtle/60 bg-surface-base"><div class="neu-recessed p-space-sm rounded-lg flex items-center justify-between"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-success animate-pulse"></span><span class="font-label-sm text-label-sm text-text-secondary">DB Gateway: Online</span></div><span class="font-code-tabular text-[11px] text-text-secondary">LAT 24ms</span></div></div></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-16 bg-surface-base/95 backdrop-blur-md z-40 border-b border-border-subtle/70 px-space-lg flex items-center justify-between"><div class="flex items-center gap-space-md"><img alt="ITCC Wisuda Sync tactile neumorphic emblem featuring ITPLN ITCC data sync icon and certification crest. Brand logo. - Primary color: #356ae6 - Font: plusJakartaSans - Mode: light - Roundness: rounded-md" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1W4K46zNHRKZ4W223lPO-7cCOByiNGC4wyyKTGsfUdVSiU4kj_i-ha8ViizKeTRh__kkcqpEZjCPMK6I2IVFct1Z3bU2oCZAVOTuoiLJ-lZ4lVfZcrf3ONXQuZZA0chf7-LQ-NjGc0ljl9SWI2Cb4dHGk2WXOeJOflVl-Y-jd12sRXiOSZyy87cm8SfyyJeTMHWjgp--jXV7CWvylcxjTp677mzRj3HRJM0c9fz48Ql_PIzallEtqjPc0qn"/><div class="hidden md:flex items-center gap-space-xs neu-recessed px-space-sm py-1 rounded-md"><span class="material-symbols-outlined text-primary text-[18px]">layers</span><span class="font-label-sm text-label-sm font-semibold text-text-main">Batch Aktif:</span><span class="font-code-tabular text-[12px] text-primary font-medium">SITASI &amp; Certiport (Gen-2024.1)</span></div></div><div class="flex items-center gap-space-md"><div class="neu-recessed px-space-sm py-1 rounded-md hidden lg:flex items-center gap-space-xs"><span class="material-symbols-outlined text-success text-[16px]">lock</span><span class="font-label-sm text-label-sm text-text-secondary">Scope: <strong class="text-text-main font-semibold">2 Kolom ITCC Saja</strong></span></div><button aria-label="Notifikasi Operasional" class="neu-icon-btn w-9 h-9 rounded-lg bg-surface-base flex items-center justify-center text-text-secondary hover:text-primary transition-all relative" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error ring-1 ring-surface-base"></span></button><div class="h-6 w-px bg-border-subtle"></div><div class="flex items-center gap-space-sm"><div class="flex flex-col text-right hidden sm:flex"><span class="font-title-sm text-[13px] text-text-main font-bold leading-tight">Budi Santoso</span><span class="font-label-sm text-[11px] text-text-secondary leading-tight">Operator / Admin ITCC</span></div><div class="neu-raised p-0.5 rounded-full bg-surface-base"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="flex-1 pt-16 bg-surface-base px-space-lg py-space-md"><div class="flex flex-col w-full">
+<!-- Interactive script to sync sidebar active state -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const activeLink = document.querySelector('aside a[data-path="data-referensi"]');
+      if (activeLink) {
+        document.querySelectorAll('aside nav a').forEach(el => {
+          el.className = "flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all";
+        });
+        activeLink.className = "flex items-center gap-space-sm px-space-sm py-2 rounded-lg neu-recessed text-primary font-body-bold bg-surface-base transition-all";
+      }
+    });
+  </script>
+<!-- Page Header & Key Metrics Bento Mosaic -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg mb-space-xl items-start">
+<div class="xl:col-span-8 flex flex-col space-y-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-tabular text-label-sm text-primary uppercase tracking-widest font-semibold">Ref-DB-Engine // Master Data Subsystem</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span class="font-label-sm text-label-sm text-text-secondary">Pusat Sertifikasi &amp; ITCC ITPLN</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-text-main tracking-tight font-bold">
+        Manajemen Batch Referensi Data
+      </h1>
+<p class="font-body-md text-body-md text-text-secondary max-w-3xl leading-relaxed">
+        Kelola siklus hidup basis data rujukan SITASI dan Certiport untuk pencocokan wisuda. Pastikan integritas struktur berkas master dan kontrol status keaktifan pipeline verifikasi.
+      </p>
+<!-- Tactical Integrity Guarantee Strip -->
+<div class="neu-recessed p-space-sm rounded-xl mt-space-xs flex flex-wrap items-center justify-between gap-space-sm bg-surface-base">
+<div class="flex items-center gap-space-sm">
+<div class="w-7 h-7 rounded-lg bg-surface-base neu-raised flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-main font-semibold">Integritas 2-Kolom Terkunci</span>
+<span class="font-label-sm text-label-sm text-text-secondary">Hanya membaca kolom NIM &amp; memperbarui 2 kolom ITCC pada master SITASI</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs font-code-tabular text-label-sm text-success bg-surface-base neu-raised px-space-sm py-1 rounded-md">
+<span class="w-2 h-2 rounded-full bg-success"></span>
+<span>SHA-256 CHECK: PASSED</span>
+</div>
+</div>
+</div>
+<!-- Live Telemetry Card: Active Batch Scope -->
+<div class="xl:col-span-4 neu-raised p-space-lg rounded-xl bg-surface-base flex flex-col justify-between space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">hub</span>
+<span class="font-label-md text-label-md uppercase tracking-wider text-text-secondary font-bold">Pipeline Target Aktif</span>
+</div>
+<span class="font-code-tabular text-[11px] text-primary bg-primary-fixed px-space-xs py-0.5 rounded font-semibold">LIVE DUAL RUN</span>
+</div>
+<div class="space-y-space-xs">
+<div class="flex items-center justify-between p-space-xs neu-recessed rounded-lg">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-success text-[16px]">school</span>
+<span class="font-label-md text-label-md text-text-main font-semibold">SITASI Master:</span>
+</div>
+<span class="font-code-tabular text-label-sm text-primary font-bold">2024-Ganjil-v2</span>
+</div>
+<div class="flex items-center justify-between p-space-xs neu-recessed rounded-lg">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[16px]">workspace_premium</span>
+<span class="font-label-md text-label-md text-text-main font-semibold">Certiport DB:</span>
+</div>
+<span class="font-code-tabular text-label-sm text-primary font-bold">Cert-Q3-2024</span>
+</div>
+</div>
+<!-- Compact SVG Sync Gauge Graphic -->
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center gap-space-sm">
+<svg class="w-10 h-10 -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-variant" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-primary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="88, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<div class="flex flex-col">
+<span class="font-code-tabular text-title-sm text-text-main font-bold">3.420 / 3.420</span>
+<span class="font-label-sm text-label-sm text-text-secondary">Record Ter-indeks Siap Eksekusi</span>
+</div>
+</div>
+<div class="neu-pill-active p-1.5 rounded-lg bg-surface-base text-text-secondary">
+<span class="material-symbols-outlined text-[18px]">sync_alt</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Neumorphic Segmented Tab Bar -->
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-space-md mb-space-lg">
+<div class="neu-recessed p-1 rounded-xl bg-surface-base flex items-center max-w-xl">
+<button class="flex-1 py-2 px-space-md rounded-lg bg-surface-base neu-pill-active font-label-md text-label-md text-primary flex items-center justify-center gap-space-xs transition-all font-semibold" id="tab-sitasi" onclick="switchBatchTab('sitasi')" type="button">
+<span class="material-symbols-outlined text-[18px]">table_chart</span>
+<span>Data Rujukan SITASI (3 Batch)</span>
+<span class="font-code-tabular text-[10px] bg-primary text-on-primary px-1.5 py-0.5 rounded-full ml-1">Master</span>
+</button>
+<button class="flex-1 py-2 px-space-md rounded-lg font-label-md text-label-md text-text-secondary hover:text-text-main flex items-center justify-center gap-space-xs transition-all" id="tab-certiport" onclick="switchBatchTab('certiport')" type="button">
+<span class="material-symbols-outlined text-[18px]">military_tech</span>
+<span>Data Rujukan Certiport (4 Batch)</span>
+</button>
+</div>
+<!-- Quick Meta State -->
+<div class="flex items-center gap-space-sm self-end sm:self-auto">
+<span class="font-label-sm text-label-sm text-text-secondary hidden md:inline">Storage Snapshot:</span>
+<div class="neu-recessed px-space-sm py-1 rounded-md text-text-main font-code-tabular text-label-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[15px]">inventory_2</span>
+<span>7 Batch Master (18.4 MB)</span>
+</div>
+</div>
+</div>
+<!-- Top Filter & Action Bar -->
+<div class="neu-raised p-space-md rounded-xl bg-surface-base mb-space-lg flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm">
+<!-- Search Input Well -->
+<div class="flex-1 neu-recessed px-space-md py-2.5 rounded-lg flex items-center gap-space-xs bg-surface-base focus-within:ring-2 focus-within:ring-primary">
+<span class="material-symbols-outlined text-text-secondary text-[20px]">search</span>
+<input class="w-full bg-transparent font-body-md text-body-md text-text-main placeholder:text-text-secondary focus:outline-none" id="batch-search" placeholder="Cari nama batch, periode, atau pengunggah..." type="text"/>
+<button aria-label="Bersihkan pencarian" class="text-text-secondary hover:text-text-main" onclick="document.getElementById('batch-search').value = ''" type="button">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+</button>
+</div>
+<!-- Segmented Status Pill Filter -->
+<div class="neu-recessed p-1 rounded-lg flex items-center gap-1 bg-surface-base self-start sm:self-auto">
+<button class="px-space-sm py-1.5 rounded-md font-label-md text-label-md bg-surface-base neu-pill-active text-primary font-semibold" type="button">Semua</button>
+<button class="px-space-sm py-1.5 rounded-md font-label-md text-label-md text-text-secondary hover:text-text-main" type="button">Aktif</button>
+<button class="px-space-sm py-1.5 rounded-md font-label-md text-label-md text-text-secondary hover:text-text-main" type="button">Terarsip</button>
+</div>
+</div>
+<!-- Primary Action Button -->
+<div class="flex items-center gap-space-sm">
+<button class="w-full sm:w-auto px-space-lg py-2.5 rounded-lg bg-primary-container text-on-primary font-label-md text-label-md font-bold flex items-center justify-center gap-space-xs shadow-md hover:bg-primary transition-all" onclick="triggerUploadModal()" type="button">
+<span class="material-symbols-outlined text-[19px]">cloud_upload</span>
+<span>Upload Batch Baru</span>
+</button>
+</div>
+</div>
+<!-- Batch Table Container (Soft Neumorphic Card) -->
+<div class="neu-raised rounded-xl bg-surface-base overflow-hidden mb-space-lg">
+<!-- Sub-header bar inside card with metadata -->
+<div class="p-space-md bg-surface-base flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm neu-recessed m-space-md rounded-lg">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[22px]">dataset</span>
+<div>
+<span class="font-title-sm text-title-sm text-text-main font-bold" id="active-catalog-title">Katalog Batch SITASI Master</span>
+<span class="font-label-sm text-label-sm text-text-secondary block">File Excel rujukan induk kelulusan akademik</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-code-tabular text-label-sm text-text-secondary">Filter: <span class="text-text-main font-semibold">Semua Status (3 Ditampilkan)</span></span>
+<button class="neu-icon-btn w-8 h-8 rounded-lg bg-surface-base flex items-center justify-center text-text-secondary hover:text-primary transition-all" title="Refresh Katalog" type="button">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+</div>
+</div>
+<!-- Overflow container for dense tabular structure -->
+<div class="overflow-x-auto px-space-md pb-space-md">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="neu-recessed text-text-secondary font-label-md text-label-md uppercase tracking-wider">
+<th class="py-3 px-space-md rounded-l-lg">Nama File / Identifier</th>
+<th class="py-3 px-space-sm">Periode Data</th>
+<th class="py-3 px-space-sm">Diunggah Oleh</th>
+<th class="py-3 px-space-sm">Tanggal Unggah</th>
+<th class="py-3 px-space-sm text-right">Jumlah Rekor</th>
+<th class="py-3 px-space-md text-center">Integritas &amp; Status</th>
+<th class="py-3 px-space-md text-center rounded-r-lg">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-text-main font-body-md text-body-md">
+<!-- Row 1: Active Primary Batch -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-base neu-raised flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-bold text-body-bold text-text-main flex items-center gap-1.5">
+                    SITASI-2024-Ganjil-v2.xlsx
+                    <span class="material-symbols-outlined text-primary text-[15px]" title="Batch rujukan aktif saat ini">star</span>
+</span>
+<span class="font-code-tabular text-label-sm text-text-secondary">MD5: b48f...c91a | 4.82 MB</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-sm font-label-md text-label-md text-text-main">
+<span class="neu-recessed px-space-xs py-1 rounded bg-surface-base font-semibold">Ganjil 2024/2025</span>
+</td>
+<td class="py-space-md px-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-main font-semibold">Admin ITCC (Budi S.)</span>
+<span class="font-label-sm text-label-sm text-text-secondary">NIP: 19880421-ITCC</span>
+</div>
+</td>
+<td class="py-space-md px-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-main font-semibold">22 Okt 2024</span>
+<span class="font-code-tabular text-label-sm text-text-secondary">14:15 WIB</span>
+</div>
+</td>
+<td class="py-space-md px-space-sm text-right">
+<div class="flex flex-col items-end">
+<span class="font-code-tabular text-title-sm text-text-main font-bold">3.420</span>
+<span class="font-label-sm text-label-sm text-text-secondary">Mahasiswa</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<div class="inline-flex items-center gap-1.5 neu-raised px-space-sm py-1.5 rounded-full bg-surface-base text-success text-label-sm font-bold tracking-wide">
+<span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+<span>AKTIF (Digunakan Pipeline)</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<div class="flex items-center justify-center gap-space-xs">
+<button class="neu-raised px-space-sm py-1 rounded-md text-primary hover:text-on-primary hover:bg-primary font-label-md text-label-md transition-all flex items-center gap-1" onclick="showDetailModal('SITASI-2024-Ganjil-v2.xlsx', '3.420', 'Ganjil 2024/2025')" title="Lihat Pratinjau &amp; Skema" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span class="hidden sm:inline">Detail</span>
+</button>
+<button class="neu-raised px-space-sm py-1 rounded-md text-danger hover:bg-danger hover:text-on-error font-label-md text-label-md transition-all flex items-center gap-1" onclick="openArchiveModal('SITASI-2024-Ganjil-v2.xlsx', 'Ganjil 2024/2025')" title="Arsipkan Batch" type="button">
+<span class="material-symbols-outlined text-[16px]">archive</span>
+<span class="hidden sm:inline">Arsipkan</span>
+</button>
+<button class="neu-icon-btn w-8 h-8 rounded-md bg-surface-base flex items-center justify-center text-text-secondary hover:text-primary transition-all" title="Unduh Berkas Master" type="button">
+<span class="material-symbols-outlined text-[16px]">download</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Spacer Row divider in Neumorphic styling -->
+<tr><td class="py-1" colspan="7"><div class="h-px bg-border-subtle/50"></div></td></tr>
+<!-- Row 2: Archived Historical Batch 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-base neu-raised flex items-center justify-center text-text-secondary group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">folder_zip</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-bold text-body-bold text-text-main">
+                    SITASI-2023-Genap-v1.xlsx
+                  </span>
+<span class="font-code-tabular text-label-sm text-text-secondary">MD5: a12d...e739 | 4.31 MB</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-sm font-label-md text-label-md text-text-secondary">
+<span class="neu-recessed px-space-xs py-1 rounded bg-surface-base">Genap 2023/2024</span>
+</td>
+<td class="py-space-md px-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-main">Admin ITCC (Siti R.)</span>
+<span class="font-label-sm text-label-sm text-text-secondary">NIP: 19910814-ITCC</span>
+</div>
+</td>
+<td class="py-space-md px-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-main">15 Mar 2024</span>
+<span class="font-code-tabular text-label-sm text-text-secondary">09:30 WIB</span>
+</div>
+</td>
+<td class="py-space-md px-space-sm text-right">
+<div class="flex flex-col items-end">
+<span class="font-code-tabular text-title-sm text-text-secondary font-bold">3.110</span>
+<span class="font-label-sm text-label-sm text-text-secondary">Mahasiswa</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<div class="inline-flex items-center gap-1.5 neu-recessed px-space-sm py-1 rounded-full bg-surface-base text-text-secondary text-label-sm font-semibold">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>TERARSIP</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<div class="flex items-center justify-center gap-space-xs">
+<button class="neu-raised px-space-sm py-1 rounded-md text-primary font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-all flex items-center gap-1" onclick="activateBatch('SITASI-2023-Genap-v1.xlsx')" title="Aktifkan sebagai Master Pipeline" type="button">
+<span class="material-symbols-outlined text-[16px]">play_circle</span>
+<span class="hidden sm:inline">Jadikan Aktif</span>
+</button>
+<button class="neu-icon-btn w-8 h-8 rounded-md bg-surface-base flex items-center justify-center text-text-secondary hover:text-primary transition-all" onclick="showDetailModal('SITASI-2023-Genap-v1.xlsx', '3.110', 'Genap 2023/2024')" title="Lihat Pratinjau &amp; Skema" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="neu-icon-btn w-8 h-8 rounded-md bg-surface-base flex items-center justify-center text-text-secondary hover:text-primary transition-all" title="Unduh Berkas Master" type="button">
+<span class="material-symbols-outlined text-[16px]">download</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Spacer Row divider -->
+<tr><td class="py-1" colspan="7"><div class="h-px bg-border-subtle/50"></div></td></tr>
+<!-- Row 3: Archived Historical Batch 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-base neu-raised flex items-center justify-center text-text-secondary group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">folder_zip</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-bold text-body-bold text-text-main">
+                    SITASI-2023-Ganjil-Final.xlsx
+                  </span>
+<span class="font-code-tabular text-label-sm text-text-secondary">MD5: f55c...32be | 3.95 MB</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-sm font-label-md text-label-md text-text-secondary">
+<span class="neu-recessed px-space-xs py-1 rounded bg-surface-base">Ganjil 2023/2024</span>
+</td>
+<td class="py-space-md px-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-main">Admin ITCC (Budi S.)</span>
+<span class="font-label-sm text-label-sm text-text-secondary">NIP: 19880421-ITCC</span>
+</div>
+</td>
+<td class="py-space-md px-space-sm">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-main">10 Okt 2023</span>
+<span class="font-code-tabular text-label-sm text-text-secondary">11:00 WIB</span>
+</div>
+</td>
+<td class="py-space-md px-space-sm text-right">
+<div class="flex flex-col items-end">
+<span class="font-code-tabular text-title-sm text-text-secondary font-bold">2.980</span>
+<span class="font-label-sm text-label-sm text-text-secondary">Mahasiswa</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<div class="inline-flex items-center gap-1.5 neu-recessed px-space-sm py-1 rounded-full bg-surface-base text-text-secondary text-label-sm font-semibold">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>TERARSIP</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-center">
+<div class="flex items-center justify-center gap-space-xs">
+<button class="neu-raised px-space-sm py-1 rounded-md text-primary font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-all flex items-center gap-1" onclick="activateBatch('SITASI-2023-Ganjil-Final.xlsx')" title="Aktifkan sebagai Master Pipeline" type="button">
+<span class="material-symbols-outlined text-[16px]">play_circle</span>
+<span class="hidden sm:inline">Jadikan Aktif</span>
+</button>
+<button class="neu-icon-btn w-8 h-8 rounded-md bg-surface-base flex items-center justify-center text-text-secondary hover:text-primary transition-all" onclick="showDetailModal('SITASI-2023-Ganjil-Final.xlsx', '2.980', 'Ganjil 2023/2024')" title="Lihat Pratinjau &amp; Skema" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="neu-icon-btn w-8 h-8 rounded-md bg-surface-base flex items-center justify-center text-text-secondary hover:text-primary transition-all" title="Unduh Berkas Master" type="button">
+<span class="material-symbols-outlined text-[16px]">download</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Bottom Navigation & Pagination Bar -->
+<div class="p-space-md bg-surface-base flex flex-col sm:flex-row items-center justify-between gap-space-sm neu-recessed m-space-md rounded-lg">
+<div class="flex items-center gap-space-xs font-label-md text-label-md text-text-secondary">
+<span>Menampilkan <strong class="text-text-main">1 - 3</strong> dari <strong class="text-text-main">3</strong> berkas rujukan terdaftar</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="neu-icon-btn w-8 h-8 rounded-md bg-surface-base flex items-center justify-center text-text-secondary opacity-50 cursor-not-allowed" disabled="" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="neu-pill-active w-8 h-8 rounded-md bg-surface-base text-primary font-code-tabular text-label-sm font-bold flex items-center justify-center" type="button">1</button>
+<button class="neu-icon-btn w-8 h-8 rounded-md bg-surface-base flex items-center justify-center text-text-secondary opacity-50 cursor-not-allowed" disabled="" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Operational Policy Callout & Architectural Safeguard Warning -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-lg mb-space-lg">
+<!-- Callout 1: Dual Active Constraint Note -->
+<div class="md:col-span-6 neu-raised p-space-lg rounded-xl bg-surface-base flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-base neu-raised flex items-center justify-center text-warning shrink-0">
+<span class="material-symbols-outlined text-[24px]">gavel</span>
+</div>
+<div class="space-y-space-xs">
+<div class="flex items-center gap-space-xs">
+<h2 class="font-title-sm text-title-sm text-text-main font-bold">Ketentuan Konkurensi Pipeline</h2>
+<span class="font-code-tabular text-[10px] text-warning bg-surface-base neu-recessed px-1.5 py-0.5 rounded font-semibold">STRICT</span>
+</div>
+<p class="font-body-md text-body-md text-text-secondary leading-relaxed">
+          Hanya <strong>satu batch SITASI</strong> dan <strong>satu batch Certiport</strong> yang dapat berstatus <strong>AKTIF</strong> secara bersamaan. Mengaktifkan batch baru akan secara otomatis memindahkan batch yang sedang berjalan ke status terarsip tanpa mengorbankan konsistensi proses berjalan.
+        </p>
+</div>
+</div>
+<!-- Callout 2: Safe Archival Commitment -->
+<div class="md:col-span-6 neu-raised p-space-lg rounded-xl bg-surface-base flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-base neu-raised flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[24px]">history_edu</span>
+</div>
+<div class="space-y-space-xs">
+<div class="flex items-center gap-space-xs">
+<h2 class="font-title-sm text-title-sm text-text-main font-bold">Jaminan Jejak Audit Permanen</h2>
+<span class="font-code-tabular text-[10px] text-primary bg-surface-base neu-recessed px-1.5 py-0.5 rounded font-semibold">IMMUTABLE</span>
+</div>
+<p class="font-body-md text-body-md text-text-secondary leading-relaxed">
+          Pengarsipan batch tidak akan pernah menghapus log histori, riwayat pencocokan wisudawan, atau bukti sinkronisasi sebelumnya. Seluruh relasi hash MD5 dipelihara dalam tabel audit log ITCC.
+        </p>
+</div>
+</div>
+</div>
+<!-- Interactive Archival Confirmation Modal (Hidden by default, toggled via JS) -->
+<div class="fixed inset-0 z-50 bg-text-main/40 backdrop-blur-sm hidden items-center justify-center p-space-md" id="archive-modal">
+<div class="neu-raised bg-surface-base rounded-2xl max-w-lg w-full p-space-xl flex flex-col space-y-space-lg">
+<div class="flex items-start gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-surface-base neu-raised flex items-center justify-center text-danger shrink-0">
+<span class="material-symbols-outlined text-[28px]">inventory_2</span>
+</div>
+<div class="space-y-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-code-tabular text-label-sm text-danger font-bold uppercase">Prosedur Pengarsipan</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-text-main font-bold">Konfirmasi Pengarsipan Batch</h3>
+</div>
+</div>
+<div class="neu-recessed p-space-md rounded-xl bg-surface-base space-y-space-xs">
+<div class="flex items-center justify-between text-label-md font-label-md">
+<span class="text-text-secondary">Identifier File:</span>
+<span class="font-code-tabular text-text-main font-bold" id="modal-target-file">SITASI-2024-Ganjil-v2.xlsx</span>
+</div>
+<div class="flex items-center justify-between text-label-md font-label-md">
+<span class="text-text-secondary">Periode Akademik:</span>
+<span class="text-text-main font-semibold" id="modal-target-period">Ganjil 2024/2025</span>
+</div>
+<div class="pt-space-xs mt-space-xs border-t border-border-subtle/50 text-label-sm font-label-sm text-text-secondary">
+          Pengarsipan tidak akan menghapus riwayat audit atau log historis sinkronisasi yang pernah menggunakan batch ini. Operasi sinkronisasi baru akan memerlukan aktivasi batch pengganti.
+        </div>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-space-xs">
+<button class="px-space-md py-2 rounded-lg neu-raised bg-surface-base font-label-md text-label-md text-text-secondary hover:text-text-main transition-all" onclick="closeArchiveModal()" type="button">
+          Batal
+        </button>
+<button class="px-space-lg py-2 rounded-lg bg-danger text-on-error font-label-md text-label-md font-bold shadow-md hover:opacity-90 transition-all flex items-center gap-1.5" onclick="confirmArchive()" type="button">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>Ya, Arsipkan Batch</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Interactive Detail / Column Inspection Modal -->
+<div class="fixed inset-0 z-50 bg-text-main/40 backdrop-blur-sm hidden items-center justify-center p-space-md" id="detail-modal">
+<div class="neu-raised bg-surface-base rounded-2xl max-w-2xl w-full p-space-xl flex flex-col space-y-space-lg">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-base neu-raised flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">schema</span>
+</div>
+<div>
+<h3 class="font-title-sm text-title-sm text-text-main font-bold">Inspeksi Struktur Berkas Master</h3>
+<span class="font-code-tabular text-label-sm text-text-secondary" id="detail-filename">SITASI-2024-Ganjil-v2.xlsx</span>
+</div>
+</div>
+<button class="neu-icon-btn w-8 h-8 rounded-lg bg-surface-base flex items-center justify-center text-text-secondary hover:text-text-main" onclick="closeDetailModal()" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<div class="grid grid-cols-3 gap-space-sm text-center">
+<div class="neu-recessed p-space-sm rounded-lg">
+<span class="font-label-sm text-label-sm text-text-secondary block">Jumlah Baris</span>
+<span class="font-code-tabular text-title-sm text-text-main font-bold" id="detail-records">3.420</span>
+</div>
+<div class="neu-recessed p-space-sm rounded-lg">
+<span class="font-label-sm text-label-sm text-text-secondary block">Kolom Terkunci</span>
+<span class="font-code-tabular text-title-sm text-success font-bold">2 / 2 Valid</span>
+</div>
+<div class="neu-recessed p-space-sm rounded-lg">
+<span class="font-label-sm text-label-sm text-text-secondary block">Format Sheet</span>
+<span class="font-code-tabular text-title-sm text-text-main font-bold">XLSX Strict</span>
+</div>
+</div>
+<div class="space-y-space-xs">
+<span class="font-label-md text-label-md text-text-main font-semibold">Skema Kolom ITCC yang Diizinkan:</span>
+<div class="neu-recessed p-space-md rounded-xl space-y-space-xs bg-surface-base font-code-tabular text-label-sm">
+<div class="flex items-center justify-between py-1 border-b border-border-subtle/40">
+<span class="text-text-main font-semibold">1. ITCC_CERT_STATUS</span>
+<span class="text-success">VARCHAR(30) - UPDATEABLE</span>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-border-subtle/40">
+<span class="text-text-main font-semibold">2. ITCC_VERIFIED_DATE</span>
+<span class="text-success">DATETIME - UPDATEABLE</span>
+</div>
+<div class="flex items-center justify-between py-1 text-text-secondary">
+<span>3. [Seluruh Kolom Akademik Lain]</span>
+<span class="text-danger font-semibold">READ-ONLY (LOCKED)</span>
+</div>
+</div>
+</div>
+<div class="flex justify-end">
+<button class="px-space-lg py-2 rounded-lg bg-surface-base neu-raised text-text-main font-label-md text-label-md font-semibold" onclick="closeDetailModal()" type="button">
+          Tutup Pratinjau
+        </button>
+</div>
+</div>
+</div>
+<!-- Vanilla JavaScript for Tab Switching, Filter Feedback, and Modal Control -->
+<script>
+    function switchBatchTab(type) {
+      const tabSitasi = document.getElementById('tab-sitasi');
+      const tabCertiport = document.getElementById('tab-certiport');
+      const title = document.getElementById('active-catalog-title');
+
+      if (type === 'sitasi') {
+        tabSitasi.className = "flex-1 py-2 px-space-md rounded-lg bg-surface-base neu-pill-active font-label-md text-label-md text-primary flex items-center justify-center gap-space-xs transition-all font-semibold";
+        tabCertiport.className = "flex-1 py-2 px-space-md rounded-lg font-label-md text-label-md text-text-secondary hover:text-text-main flex items-center justify-center gap-space-xs transition-all";
+        title.innerText = "Katalog Batch SITASI Master";
+      } else {
+        tabCertiport.className = "flex-1 py-2 px-space-md rounded-lg bg-surface-base neu-pill-active font-label-md text-label-md text-primary flex items-center justify-center gap-space-xs transition-all font-semibold";
+        tabSitasi.className = "flex-1 py-2 px-space-md rounded-lg font-label-md text-label-md text-text-secondary hover:text-text-main flex items-center justify-center gap-space-xs transition-all";
+        title.innerText = "Katalog Batch Certiport Master (MOS / MTA / Adobe)";
+      }
+    }
+
+    function openArchiveModal(filename, period) {
+      document.getElementById('modal-target-file').innerText = filename;
+      document.getElementById('modal-target-period').innerText = period;
+      const modal = document.getElementById('archive-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeArchiveModal() {
+      const modal = document.getElementById('archive-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmArchive() {
+      closeArchiveModal();
+      alert('Batch berhasil dipindahkan ke status Terarsip. Log historis tetap tersimpan dalam audit.');
+    }
+
+    function activateBatch(filename) {
+      if (confirm('Konfirmasi: Jadikan ' + filename + ' sebagai batch AKTIF master? Batch aktif saat ini akan dialihkan ke Terarsip.')) {
+        alert(filename + ' kini berstatus AKTIF. Pipeline pencocokan wisuda telah diarahkan ke batch ini.');
+      }
+    }
+
+    function showDetailModal(filename, count, period) {
+      document.getElementById('detail-filename').innerText = filename;
+      document.getElementById('detail-records').innerText = count;
+      const modal = document.getElementById('detail-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDetailModal() {
+      const modal = document.getElementById('detail-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function triggerUploadModal() {
+      alert('Membuka wizard unggah batch baru. Sistem akan memverifikasi 2 header kolom ITCC sebelum berkas diterima.');
+    }
+  </script>
+</div></main><footer class="w-full bg-surface-base border-t border-border-subtle/70 py-space-md px-space-lg"><div class="flex flex-col md:flex-row items-center justify-between gap-space-sm text-text-secondary font-label-md text-label-md"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[18px]">verified_user</span><span>Institut Teknologi PLN (ITPLN) © 2025. Pusat Sertifikasi &amp; ITCC. Hak Cipta Dilindungi.</span></div><div class="neu-recessed px-space-sm py-1 rounded-md text-text-main font-code-tabular text-[11px] border border-border-subtle/50 flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span><span>Output penulisan hanya memperbarui 2 kolom sertifikasi ITCC pada master SITASI</span></div></div></footer></div></body></html>

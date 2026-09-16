@@ -12,7 +12,6 @@ import {
 import type { AuthUser } from "../../features/auth/auth-types";
 
 const plannedDestinations = [
-  "/user/dashboard",
   "/admin/dashboard",
   "/admin/import/sitasi",
   "/admin/import/certiport",
@@ -38,7 +37,7 @@ const admin: AuthUser = {
 
 describe("role-aware navigation", () => {
   it.each(["USER", "ADMIN"] as const)(
-    "does not render planned %s navigation before those pages exist",
+    "does not render unimplemented planned %s navigation",
     (role) => {
       const markup = renderToStaticMarkup(
         <Sidebar role={role} activeRouteLabel="Workspace terlindungi" />,
@@ -48,6 +47,7 @@ describe("role-aware navigation", () => {
         expect(markup).not.toContain(`href="${destination}"`);
       }
       if (role === "USER") {
+        expect(markup).toContain('href="/user/dashboard"');
         expect(markup).toContain('href="/user/graduation-upload"');
         expect(markup).toContain('href="/user/reference-selection"');
       }

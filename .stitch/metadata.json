@@ -1,0 +1,25 @@
+{
+  "projectId": "12724873765600380458",
+  "title": "ITCC Wisuda Sync",
+  "deviceType": "DESKTOP",
+  "Last Sync Time": "2026-09-15T22:05:49.9556641+07:00",
+  "screens": {
+    "70afe1a143d442b89786ae252c252f11": {"label":"Upload Berkas Wisuda XLSX","sourceScreen":"projects/12724873765600380458/screens/70afe1a143d442b89786ae252c252f11","width":2560,"height":2646},
+    "04dd26324844465c8d7f2e7e1516eb8b": {"label":"Import Riwayat Ujian Certiport","sourceScreen":"projects/12724873765600380458/screens/04dd26324844465c8d7f2e7e1516eb8b","width":2560,"height":3586},
+    "23d2e23349304cc5a62acaea849e3d57": {"label":"Import Data Kelulusan SITASI","sourceScreen":"projects/12724873765600380458/screens/23d2e23349304cc5a62acaea849e3d57","width":2560,"height":3094},
+    "f1e92326febc45c6b325111c6fd9d6dd": {"label":"Audit Log Aktivitas Sistem ITCC","sourceScreen":"projects/12724873765600380458/screens/f1e92326febc45c6b325111c6fd9d6dd","width":2560,"height":3954},
+    "90c3d32677f94a4481731d0fd50a0037": {"label":"Output Excel Siap Diunduh","sourceScreen":"projects/12724873765600380458/screens/90c3d32677f94a4481731d0fd50a0037","width":2560,"height":3102},
+    "62efe4379da7482db137675d1b7c110a": {"label":"Workspace Review Data Ambigu","sourceScreen":"projects/12724873765600380458/screens/62efe4379da7482db137675d1b7c110a","width":2560,"height":2906},
+    "027e04433431461ba9f7d15ed7390876": {"label":"Dashboard Operasional User","sourceScreen":"projects/12724873765600380458/screens/027e04433431461ba9f7d15ed7390876","width":2560,"height":3300},
+    "1c8fb4ea7bad40ee80d4af2cb2b6ed6d": {"label":"Manajemen Pengguna & Peran","sourceScreen":"projects/12724873765600380458/screens/1c8fb4ea7bad40ee80d4af2cb2b6ed6d","width":2560,"height":2410},
+    "72c294a8cf794decb66de6d4094d24ec": {"label":"Login Sistem ITCC Wisuda Sync","sourceScreen":"projects/12724873765600380458/screens/72c294a8cf794decb66de6d4094d24ec","width":2560,"height":2048},
+    "f738512c623845a4a06236861f3d87e8": {"label":"Dashboard Administrator ITCC","sourceScreen":"projects/12724873765600380458/screens/f738512c623845a4a06236861f3d87e8","width":2560,"height":3230},
+    "50c2744c86194b239407dbdbde6204ec": {"label":"Logo ITCC Wisuda Sync","sourceScreen":"projects/12724873765600380458/screens/50c2744c86194b239407dbdbde6204ec","width":160,"height":48},
+    "ddb54447663d48aca1f68e8a3d4d9ddc": {"label":"Konfigurasi Aturan Matching MOS & MCF","sourceScreen":"projects/12724873765600380458/screens/ddb54447663d48aca1f68e8a3d4d9ddc","width":2560,"height":4474},
+    "bc36aa9de313482796789d1aacc92e70": {"label":"Progres Sinkronisasi Data Wisuda","sourceScreen":"projects/12724873765600380458/screens/bc36aa9de313482796789d1aacc92e70","width":2560,"height":2048},
+    "c6421941cb3543b29d1fe357472a7a30": {"label":"Validasi File Wisuda & Pemetaan Kolom","sourceScreen":"projects/12724873765600380458/screens/c6421941cb3543b29d1fe357472a7a30","width":2560,"height":2346},
+    "da045e7433b54938befd266749c0e8b6": {"label":"Pemilihan Batch Referensi SITASI & Certiport","sourceScreen":"projects/12724873765600380458/screens/da045e7433b54938befd266749c0e8b6","width":2560,"height":2694},
+    "744aa36667ee45d9bcfbd8dafb421e6c": {"label":"Preview Hasil Sinkronisasi Wisuda","sourceScreen":"projects/12724873765600380458/screens/744aa36667ee45d9bcfbd8dafb421e6c","width":2560,"height":2944},
+    "0ceb97e01ba0448eb9ccab04cb4d89a3": {"label":"Manajemen Batch Referensi SITASI & Certiport","sourceScreen":"projects/12724873765600380458/screens/0ceb97e01ba0448eb9ccab04cb4d89a3","width":2560,"height":3122}
+  }
+}

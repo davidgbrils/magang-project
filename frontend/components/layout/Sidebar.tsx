@@ -28,6 +28,7 @@ const PLANNED_NAVIGATION_BY_ROLE: Record<UserRole, readonly NavigationItem[]> = 
 
 // Route tasks add a path here only when its page exists in the app tree.
 export const IMPLEMENTED_PROTECTED_ROUTES: readonly string[] = [
+  "/user/dashboard",
   "/user/graduation-upload",
   "/user/file-validation",
   "/user/reference-selection",

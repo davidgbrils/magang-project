@@ -1,12 +1,21 @@
 :root {
   --color-surface: #e0e0e0;
+  --color-background: #e0e0e0;
+  --color-surface-bright: #f9f9f9;
+  --color-surface-lowest: #ffffff;
+  --color-surface-low: #f4f3f3;
+  --color-surface-high: #e8e8e8;
+  --color-surface-highest: #e2e2e2;
   --color-highlight: #ffffff;
   --color-shadow-dark: #bebebe;
   --color-text-main: #27313a;
-  --color-text-secondary: #66717a;
+  --color-text-secondary: #505a62;
+  --color-text-muted: #66717a;
   --color-text-secondary-accessible: #505a62;
-  --color-border: var(--color-text-secondary);
+  --color-border: #c3c6d6;
+  --color-border-subtle: #d1d5db;
   --color-primary: #356ae6;
+  --color-primary-strong: #0650cc;
   --color-primary-text: #ffffff;
   --color-success: #2f7d54;
   --color-warning: #956d18;
@@ -21,8 +30,10 @@
   --shadow-pressed: inset 0.125rem 0.125rem 0.25rem var(--color-shadow-dark),
     inset -0.125rem -0.125rem 0.25rem var(--color-highlight);
 
-  --border-structural: 1px solid var(--color-border);
+  --border-structural: 1px solid var(--color-border-subtle);
   --radius-control: 0.5rem;
+  --radius-panel: 0.75rem;
+  --radius-large: 1rem;
   --radius-status: 0.375rem;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -36,7 +47,7 @@
   --line-height-base: 1.6;
   --control-min-size: 2.75rem;
   --viewport-min-width: 20rem;
-  --content-max-width: 45rem;
+  --content-max-width: 90rem;
   --form-max-width: 26.25rem;
   --content-padding-fluid: 5vw;
   --focus-width: 2px;
@@ -44,4 +55,6 @@
   --disabled-opacity: 0.62;
   --motion-fast: 120ms;
   --motion-ease-out: ease-out;
+  --font-body: "Plus Jakarta Sans", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, monospace;
 }

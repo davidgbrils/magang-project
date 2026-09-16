@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><title>ITCC Wisuda Sync - Institut Teknologi PLN</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; } .neu-raised { box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff; border: 1px solid rgba(209, 213, 219, 0.6); } .neu-recessed { box-shadow: inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff; border: 1px solid rgba(190, 190, 190, 0.4); } .neu-pill-active { box-shadow: 3px 3px 6px #bebebe, -3px -3px 6px #ffffff; } .neu-icon-btn { box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff; border: 1px solid rgba(209, 213, 219, 0.6); }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "shadow-light": "#ffffff", "primary": "#0650cc", "border-subtle": "#d1d5db", "inverse-on-surface": "#f1f1f1", "surface-container-lowest": "#ffffff", "surface-variant": "#e2e2e2", "surface-bright": "#f9f9f9", "on-background": "#1a1c1c", "on-error-container": "#93000a", "secondary": "#556068", "on-secondary-fixed": "#121d24", "on-tertiary-container": "#fff7f5", "on-secondary-container": "#59646d", "surface-container-low": "#f4f3f3", "primary-container": "#356ae6", "outline": "#737685", "surface-container-high": "#e8e8e8", "tertiary-container": "#bc5300", "text-main": "#27313a", "on-primary-container": "#f9f7ff", "secondary-fixed-dim": "#bdc8d2", "text-secondary": "#66717a", "secondary-fixed": "#d9e4ee", "on-primary-fixed-variant": "#003ea6", "on-secondary-fixed-variant": "#3d4850", "on-primary-fixed": "#00174a", "on-tertiary-fixed-variant": "#773200", "inverse-primary": "#b3c5ff", "surface": "#f9f9f9", "on-error": "#ffffff", "surface-base": "#e0e0e0", "warning": "#956d18", "on-surface-variant": "#434654", "on-tertiary-fixed": "#331100", "error": "#ba1a1a", "surface-tint": "#1555d1", "secondary-container": "#d6e1eb", "success": "#2f7d54", "tertiary-fixed-dim": "#ffb68f", "outline-variant": "#c3c6d6", "tertiary-fixed": "#ffdbca", "on-primary": "#ffffff", "on-secondary": "#ffffff", "background": "#f9f9f9", "error-container": "#ffdad6", "tertiary": "#954100", "surface-container": "#eeeeee", "danger": "#a43d42", "surface-dim": "#dadada", "on-tertiary": "#ffffff", "inverse-surface": "#2f3131", "primary-fixed": "#dbe1ff", "surface-container-highest": "#e2e2e2", "shadow-dark": "#bebebe", "on-surface": "#1a1c1c", "primary-fixed-dim": "#b3c5ff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter-sm": "1rem", "space-lg": "1.5rem", "margin-sm": "1rem", "space-md": "1rem", "space-sm": "0.5rem", "margin": "2rem", "space-xs": "0.25rem", "space-xl": "2rem", "gutter": "1.5rem" }, "fontFamily": { "label-sm": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "body-bold": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "title-sm": ["Plus Jakarta Sans"], "code-tabular": ["JetBrains Mono"], "headline-xl-mobile": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"] }, "fontSize": { "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }], "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-bold": ["14px", { "lineHeight": "22px", "fontWeight": "600" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "title-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "code-tabular": ["13px", { "lineHeight": "18px", "fontWeight": "500" }], "headline-xl-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }] } } } };</script></head><body class="bg-surface-base font-body-md text-text-main antialiased selection:bg-primary-fixed selection:text-on-primary-fixed"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-base z-50 flex flex-col justify-between border-r border-border-subtle/70"><div class="flex flex-col h-full"><div class="h-16 px-space-md flex items-center justify-between border-b border-border-subtle/50 bg-surface-base"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-lg bg-surface-base neu-raised flex items-center justify-center"><span class="material-symbols-outlined text-primary text-[22px]">sync_saved_locally</span></div><div class="flex flex-col"><span class="font-title-sm text-title-sm text-text-main leading-tight">ITCC Wisuda</span><span class="font-label-sm text-label-sm text-text-secondary tracking-wide uppercase">Institut Teknologi PLN</span></div></div><div class="neu-pill-active px-space-xs py-0.5 rounded bg-surface-base border border-border-subtle/60"><span class="font-code-tabular text-[11px] font-semibold text-primary">v2.4</span></div></div><div class="p-space-md pb-space-sm"><div class="neu-recessed p-1 rounded-lg flex items-center justify-between bg-surface-base gap-1"><button class="flex-1 py-1.5 px-space-sm rounded-md bg-surface-base neu-pill-active font-label-md text-label-md text-primary flex items-center justify-center gap-space-xs transition-all" type="button"><span class="material-symbols-outlined text-[16px]">badge</span><span>Operator</span></button><button class="flex-1 py-1.5 px-space-sm rounded-md font-label-md text-label-md text-text-secondary hover:text-text-main flex items-center justify-center gap-space-xs transition-all" type="button"><span class="material-symbols-outlined text-[16px]">admin_panel_settings</span><span>Admin</span></button></div></div><div class="flex-1 overflow-y-auto px-space-md py-space-sm space-y-space-md"><div class="space-y-space-xs"><div class="px-space-sm py-space-xs flex items-center justify-between"><span class="font-label-sm text-label-sm text-text-secondary font-bold uppercase tracking-wider">Modul Operator</span><span class="w-2 h-2 rounded-full bg-success ring-2 ring-surface-base"></span></div><nav class="space-y-1" data-active-classes="neu-recessed text-primary font-body-bold bg-surface-base"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="beranda" href="#"><span class="material-symbols-outlined text-[19px]">space_dashboard</span><span class="font-body-md text-body-md">Beranda</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="sinkronisasi-baru" href="#"><span class="material-symbols-outlined text-[19px]">published_with_changes</span><span class="font-body-md text-body-md">Sinkronisasi Baru</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="review-data" href="#"><span class="material-symbols-outlined text-[19px]">fact_check</span><span class="font-body-md text-body-md">Review Data</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="riwayat-sync" href="#"><span class="material-symbols-outlined text-[19px]">manage_history</span><span class="font-body-md text-body-md">Riwayat Sync</span></a></nav></div><div class="space-y-space-xs pt-space-xs border-t border-border-subtle/50"><div class="px-space-sm py-space-xs flex items-center justify-between"><span class="font-label-sm text-label-sm text-text-secondary font-bold uppercase tracking-wider">Administrator ITCC</span><span class="font-code-tabular text-[10px] text-primary bg-secondary-fixed px-1.5 py-0.5 rounded">SYS</span></div><nav class="space-y-1" data-active-classes="neu-recessed text-primary font-body-bold bg-surface-base"><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="ringkasan-admin" href="#"><span class="material-symbols-outlined text-[19px]">analytics</span><span class="font-body-md text-body-md">Ringkasan Admin</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="import-sitasi" href="#"><span class="material-symbols-outlined text-[19px]">upload_file</span><span class="font-body-md text-body-md">Import SITASI</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg transition-all neu-recessed text-primary font-body-bold bg-surface-base" data-path="import-certiport" href="#"><span class="material-symbols-outlined text-[19px]">workspace_premium</span><span class="font-body-md text-body-md">Import Certiport</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="data-referensi" href="#"><span class="material-symbols-outlined text-[19px]">database</span><span class="font-body-md text-body-md">Data Referensi</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="aturan-matching" href="#"><span class="material-symbols-outlined text-[19px]">rule_settings</span><span class="font-body-md text-body-md">Aturan Matching</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="manajemen-user" href="#"><span class="material-symbols-outlined text-[19px]">group_add</span><span class="font-body-md text-body-md">Manajemen User</span></a><a class="flex items-center gap-space-sm px-space-sm py-2 rounded-lg text-text-secondary hover:text-text-main hover:bg-surface-container-high transition-all" data-path="audit-log" href="#"><span class="material-symbols-outlined text-[19px]">security_update_good</span><span class="font-body-md text-body-md">Audit Log</span></a></nav></div></div><div class="p-space-md border-t border-border-subtle/60 bg-surface-base"><div class="neu-recessed p-space-sm rounded-lg flex items-center justify-between"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-success animate-pulse"></span><span class="font-label-sm text-label-sm text-text-secondary">DB Gateway: Online</span></div><span class="font-code-tabular text-[11px] text-text-secondary">LAT 24ms</span></div></div></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-16 bg-surface-base/95 backdrop-blur-md z-40 border-b border-border-subtle/70 px-space-lg flex items-center justify-between"><div class="flex items-center gap-space-md"><img alt="ITCC Wisuda Sync tactile neumorphic emblem featuring ITPLN ITCC data sync icon and certification crest. Brand logo. - Primary color: #356ae6 - Font: plusJakartaSans - Mode: light - Roundness: rounded-md" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1W4K46zNHRKZ4W223lPO-7cCOByiNGC4wyyKTGsfUdVSiU4kj_i-ha8ViizKeTRh__kkcqpEZjCPMK6I2IVFct1Z3bU2oCZAVOTuoiLJ-lZ4lVfZcrf3ONXQuZZA0chf7-LQ-NjGc0ljl9SWI2Cb4dHGk2WXOeJOflVl-Y-jd12sRXiOSZyy87cm8SfyyJeTMHWjgp--jXV7CWvylcxjTp677mzRj3HRJM0c9fz48Ql_PIzallEtqjPc0qn"/><div class="hidden md:flex items-center gap-space-xs neu-recessed px-space-sm py-1 rounded-md"><span class="material-symbols-outlined text-primary text-[18px]">layers</span><span class="font-label-sm text-label-sm font-semibold text-text-main">Batch Aktif:</span><span class="font-code-tabular text-[12px] text-primary font-medium">SITASI &amp; Certiport (Gen-2024.1)</span></div></div><div class="flex items-center gap-space-md"><div class="neu-recessed px-space-sm py-1 rounded-md hidden lg:flex items-center gap-space-xs"><span class="material-symbols-outlined text-success text-[16px]">lock</span><span class="font-label-sm text-label-sm text-text-secondary">Scope: <strong class="text-text-main font-semibold">2 Kolom ITCC Saja</strong></span></div><button aria-label="Notifikasi Operasional" class="neu-icon-btn w-9 h-9 rounded-lg bg-surface-base flex items-center justify-center text-text-secondary hover:text-primary transition-all relative" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-error ring-1 ring-surface-base"></span></button><div class="h-6 w-px bg-border-subtle"></div><div class="flex items-center gap-space-sm"><div class="flex flex-col text-right hidden sm:flex"><span class="font-title-sm text-[13px] text-text-main font-bold leading-tight">Budi Santoso</span><span class="font-label-sm text-[11px] text-text-secondary leading-tight">Operator / Admin ITCC</span></div><div class="neu-raised p-0.5 rounded-full bg-surface-base"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="flex-1 pt-16 bg-surface-base px-space-lg py-space-md"><div class="flex flex-col w-full space-y-space-xl">
+<!-- Page Breadcrumb & Header Title Area -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="space-y-space-xs">
+<div class="flex items-center gap-space-xs text-text-secondary">
+<span class="font-label-sm text-label-sm uppercase tracking-wider">Admin ITCC</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider">Import Certiport</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-text-main tracking-tight">
+        Import Riwayat Ujian Microsoft Certiport
+      </h1>
+<p class="font-body-md text-body-md text-text-secondary">
+        Unggah hasil ekspor resmi Certiport Compass untuk verifikasi kelulusan ujian MOS dan MCF.
+      </p>
+</div>
+<!-- Active Protocol Badge -->
+<div class="flex items-center gap-space-sm neu-recessed px-space-md py-2 rounded-xl self-start md:self-auto">
+<div class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-text-secondary uppercase">Skema Verifikasi</span>
+<span class="font-code-tabular text-code-tabular text-primary font-bold">Certiport XML/XLSX Parser v3.1</span>
+</div>
+</div>
+</div>
+<!-- Row 4 Architectural Notice Banner -->
+<div class="neu-raised rounded-xl p-space-md bg-surface-base border border-border-subtle/70 relative overflow-hidden">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-base neu-icon-btn flex-shrink-0 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">skip_next</span>
+</div>
+<div class="flex-1 space-y-1">
+<div class="flex flex-wrap items-center gap-space-sm">
+<span class="font-title-sm text-title-sm text-text-main">Aturan Struktur Parser Otomatis</span>
+<span class="font-code-tabular text-[11px] px-2 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-semibold">Row Offset: +3</span>
+</div>
+<p class="font-body-md text-body-md text-text-secondary">
+          Header tabel Certiport dimulai otomatis pada <strong class="text-text-main font-semibold">Baris ke-4 (Row 4)</strong>. Sistem secara otomatis melompati 3 baris metadata ekspor (Institution Name, Report Date, dan Filter Scope) guna menjamin integritas pembacaan skema.
+        </p>
+</div>
+<div class="hidden lg:flex items-center gap-1 neu-recessed px-3 py-1.5 rounded-lg text-text-secondary">
+<span class="material-symbols-outlined text-[16px] text-success">check_circle</span>
+<span class="font-code-tabular text-[11px]">Header Sync Locked</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid: File Upload Stage + Parsing KPI Dashboard -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-stretch">
+<!-- Upload Dropzone Panel (Occupies 7 cols) -->
+<div class="lg:col-span-7 neu-raised rounded-xl p-space-lg bg-surface-base flex flex-col justify-between space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">upload_file</span>
+<span class="font-title-sm text-title-sm text-text-main">File Sumber Data Certiport</span>
+</div>
+<span class="font-label-md text-label-md text-success flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-success"></span> Terverifikasi
+        </span>
+</div>
+<!-- Active Loaded File Card with Recessed Surface -->
+<div class="neu-recessed rounded-xl p-space-md space-y-space-sm bg-surface-base">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-base neu-raised flex items-center justify-center flex-shrink-0 text-success">
+<span class="material-symbols-outlined text-[28px]">table_view</span>
+</div>
+<div class="min-w-0">
+<p class="font-body-bold text-body-bold text-text-main truncate">
+                Certiport_ITPLN_Period_October_2024.xlsx
+              </p>
+<div class="flex items-center gap-space-sm text-text-secondary">
+<span class="font-code-tabular text-[11px]">2.4 MB</span>
+<span>•</span>
+<span class="font-code-tabular text-[11px]">1.895 Record Baris</span>
+<span>•</span>
+<span class="font-label-sm text-label-sm text-primary font-medium">Excel 2016+ (.xlsx)</span>
+</div>
+</div>
+</div>
+<button aria-label="Ganti Berkas" class="neu-icon-btn w-9 h-9 rounded-lg bg-surface-base flex items-center justify-center text-text-secondary hover:text-danger transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+</button>
+</div>
+<!-- In-progress Verification Bar -->
+<div class="space-y-1 pt-space-xs">
+<div class="flex justify-between font-code-tabular text-[11px] text-text-secondary">
+<span>Analisis Skema Kolom &amp; Metadata</span>
+<span class="font-bold text-primary">100% Selesai</span>
+</div>
+<div class="w-full h-2 rounded-full neu-recessed p-0.5 overflow-hidden">
+<div class="h-full rounded-full bg-primary transition-all duration-700" style="width: 100%;"></div>
+</div>
+</div>
+</div>
+<!-- Quick Upload Guidance Meta -->
+<div class="grid grid-cols-3 gap-space-sm pt-space-xs text-center font-label-sm text-label-sm text-text-secondary">
+<div class="neu-recessed py-2 px-1 rounded-lg">
+<span class="block text-text-main font-bold">Compass Export</span>
+<span>Resmi Portal Certiport</span>
+</div>
+<div class="neu-recessed py-2 px-1 rounded-lg">
+<span class="block text-text-main font-bold">Encoding UTF-8</span>
+<span>Sanitasi Simbol Otomatis</span>
+</div>
+<div class="neu-recessed py-2 px-1 rounded-lg">
+<span class="block text-text-main font-bold">Checksum OK</span>
+<span class="font-code-tabular text-[10px]">SHA-256 Valid</span>
+</div>
+</div>
+</div>
+<!-- Metric Breakdown & Result Donut Panel (Occupies 5 cols) -->
+<div class="lg:col-span-5 neu-raised rounded-xl p-space-lg bg-surface-base flex flex-col justify-between space-y-space-md">
+<div class="flex items-center justify-between">
+<span class="font-title-sm text-title-sm text-text-main">Analisis Status Hasil (Result)</span>
+<span class="font-code-tabular text-label-sm text-text-secondary">TOTAL: 1.895</span>
+</div>
+<!-- Inline SVG Ratio Visualization -->
+<div class="flex items-center gap-space-md">
+<div class="relative w-28 h-28 flex-shrink-0 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<!-- Background Ring -->
+<path class="text-surface-container-high" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<!-- Pass Arc (94.2%) -->
+<path class="text-success" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="94.2, 100" stroke-width="3.8"></path>
+<!-- Fail Arc (4.4%) offset -->
+<path class="text-danger" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="4.4, 100" stroke-dashoffset="-94.2" stroke-width="3.8"></path>
+<!-- Inco Arc (1.4%) offset -->
+<path class="text-warning" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="1.4, 100" stroke-dashoffset="-98.6" stroke-width="3.8"></path>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-headline-md text-headline-md text-text-main font-bold">94%</span>
+<span class="font-label-sm text-[9px] text-text-secondary uppercase">Pass Rate</span>
+</div>
+</div>
+<!-- Breakdown List -->
+<div class="flex-1 space-y-2">
+<!-- Pass -->
+<div class="flex items-center justify-between text-body-bold text-body-bold">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-success"></span>
+<span class="text-text-main">Pass (Lulus)</span>
+</div>
+<span class="font-code-tabular text-success">1.785</span>
+</div>
+<!-- Fail -->
+<div class="flex items-center justify-between text-body-md text-body-md">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-danger"></span>
+<span class="text-text-secondary">Fail (Tidak Lulus)</span>
+</div>
+<span class="font-code-tabular text-danger">84</span>
+</div>
+<!-- Incomplete -->
+<div class="flex items-center justify-between text-body-md text-body-md">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-warning"></span>
+<span class="text-text-secondary">Inco (Belum Selesai)</span>
+</div>
+<span class="font-code-tabular text-warning">26</span>
+</div>
+</div>
+</div>
+<!-- Live Filter Pill Note -->
+<div class="neu-recessed p-2 rounded-lg text-center">
+<span class="font-label-sm text-label-sm text-text-secondary">
+          Data bersih eligible masuk antrean: <strong class="text-text-main font-code-tabular font-bold">1.785 baris</strong>
+</span>
+</div>
+</div>
+</div>
+<!-- Strict Business Policy & Validation Notices (Split Column) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
+<!-- Hard Business Rule Banner -->
+<div class="neu-raised rounded-xl p-space-md bg-surface-base border border-border-subtle/70 flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-base neu-icon-btn flex-shrink-0 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">gavel</span>
+</div>
+<div class="space-y-1">
+<span class="font-body-bold text-body-bold text-text-main flex items-center gap-1.5">
+<span>Hard Business Rule ITCC</span>
+<span class="material-symbols-outlined text-primary text-[16px]">verified</span>
+</span>
+<p class="font-body-md text-body-md text-text-secondary">
+          Hanya nilai <code class="font-code-tabular text-success font-bold bg-surface-container-high px-1 rounded">Result = "Pass"</code> yang diakui sebagai sertifikasi lulus. Nilai <span class="text-danger font-semibold">Fail</span>, <span class="text-warning font-semibold">Inco</span>, dan status lainnya diabaikan secara ketat dan tidak akan mengubah status kelulusan di master SITASI.
+        </p>
+</div>
+</div>
+<!-- Integrity Alert Banner -->
+<div class="neu-raised rounded-xl p-space-md bg-surface-base border border-border-subtle/70 flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-surface-base neu-icon-btn flex-shrink-0 flex items-center justify-center text-warning">
+<span class="material-symbols-outlined text-[24px]">contact_support</span>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="font-body-bold text-body-bold text-text-main">Peringatan Integritas Certiport</span>
+<span class="neu-pill-active px-1.5 py-0.2 rounded font-code-tabular text-[10px] text-warning font-bold">32 Anomali</span>
+</div>
+<p class="font-body-md text-body-md text-text-secondary">
+          Terdeteksi <strong class="text-text-main font-semibold">32 data</strong> dengan <code class="font-code-tabular text-text-main bg-surface-container-high px-1 rounded">Student / Employee ID</code> kosong atau tidak valid. Sistem akan menandai record ini untuk antrean Review Nama di sisi Operator.
+        </p>
+</div>
+</div>
+</div>
+<!-- Verified Schema Inspection Matrix (10 Columns Detected) -->
+<div class="neu-raised rounded-xl p-space-lg bg-surface-base space-y-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">view_column</span>
+<span class="font-title-sm text-title-sm text-text-main">Inspeksi Struktur 10 Kolom Terverifikasi</span>
+</div>
+<span class="font-label-sm text-label-sm text-text-secondary">
+        Status: <strong class="text-success font-semibold">10/10 Cocok dengan Skema Kompas ITPLN</strong>
+</span>
+</div>
+<!-- 10 Column Chips Grid -->
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-space-sm">
+<div class="neu-recessed p-space-sm rounded-lg flex items-center justify-between bg-surface-base">
+<div class="min-w-0">
+<span class="font-code-tabular text-[10px] text-text-secondary block">Col 1</span>
+<span class="font-label-md text-label-md text-text-main font-semibold truncate block">First Name</span>
+</div>
+<span class="material-symbols-outlined text-success text-[16px]">check</span>
+</div>
+<div class="neu-recessed p-space-sm rounded-lg flex items-center justify-between bg-surface-base">
+<div class="min-w-0">
+<span class="font-code-tabular text-[10px] text-text-secondary block">Col 2</span>
+<span class="font-label-md text-label-md text-text-main font-semibold truncate block">Last Name</span>
+</div>
+<span class="material-symbols-outlined text-success text-[16px]">check</span>
+</div>
+<div class="neu-recessed p-space-sm rounded-lg flex items-center justify-between bg-surface-base">
+<div class="min-w-0">
+<span class="font-code-tabular text-[10px] text-text-secondary block">Col 3</span>
+<span class="font-label-md text-label-md text-text-main font-semibold truncate block">Student/Emp ID</span>
+</div>
+<span class="material-symbols-outlined text-warning text-[16px]" title="Contains null entries">help</span>
+</div>
+<div class="neu-recessed p-space-sm rounded-lg flex items-center justify-between bg-surface-base">
+<div class="min-w-0">
+<span class="font-code-tabular text-[10px] text-text-secondary block">Col 4</span>
+<span class="font-label-md text-label-md text-text-main font-semibold truncate block">Username</span>
+</div>
+<span class="material-symbols-outlined text-success text-[16px]">check</span>
+</div>
+<div class="neu-recessed p-space-sm rounded-lg flex items-center justify-between bg-surface-base">
+<div class="min-w-0">
+<span class="font-code-tabular text-[10px] text-text-secondary block">Col 5</span>
+<span class="font-label-md text-label-md text-text-main font-semibold truncate block">Exam</span>
+</div>
+<span class="material-symbols-outlined text-success text-[16px]">check</span>
+</div>
+<div class="neu-recessed p-space-sm rounded-lg flex items-center justify-between bg-surface-base">
+<div class="min-w-0">
+<span class="font-code-tabular text-[10px] text-text-secondary block">Col 6</span>
+<span class="font-label-md text-label-md text-text-main font-semibold truncate block">Program Name</span>
+</div>
+<span class="material-symbols-outlined text-success text-[16px]">check</span>
+</div>
+<div class="neu-recessed p-space-sm rounded-lg flex items-center justify-between bg-surface-base">
+<div class="min-w-0">
+<span class="font-code-tabular text-[10px] text-text-secondary block">Col 7</span>
+<span class="font-label-md text-label-md text-text-main font-semibold truncate block">Certification</span>
+</div>
+<span class="material-symbols-outlined text-success text-[16px]">check</span>
+</div>
+<div class="neu-recessed p-space-sm rounded-lg flex items-center justify-between bg-surface-base">
+<div class="min-w-0">
+<span class="font-code-tabular text-[10px] text-text-secondary block">Col 8</span>
+<span class="font-label-md text-label-md text-text-main font-semibold truncate block">Exam Date</span>
+</div>
+<span class="material-symbols-outlined text-success text-[16px]">check</span>
+</div>
+<div class="neu-recessed p-space-sm rounded-lg flex items-center justify-between bg-surface-base">
+<div class="min-w-0">
+<span class="font-code-tabular text-[10px] text-text-secondary block">Col 9</span>
+<span class="font-label-md text-label-md text-text-main font-semibold truncate block">Score</span>
+</div>
+<span class="material-symbols-outlined text-success text-[16px]">check</span>
+</div>
+<div class="neu-recessed p-space-sm rounded-lg flex items-center justify-between bg-surface-base">
+<div class="min-w-0">
+<span class="font-code-tabular text-[10px] text-text-secondary block">Col 10</span>
+<span class="font-label-md text-label-md text-text-main font-semibold truncate block">Result</span>
+</div>
+<span class="material-symbols-outlined text-primary text-[16px]">filter_alt</span>
+</div>
+</div>
+</div>
+<!-- Preview Data Sample Table (5 Rows with Badges) -->
+<div class="neu-raised rounded-xl p-space-lg bg-surface-base space-y-space-md overflow-hidden">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">preview</span>
+<div>
+<h2 class="font-title-sm text-title-sm text-text-main">Pratinjau Sampel Data Terbaca</h2>
+<p class="font-label-sm text-label-sm text-text-secondary">Menampilkan 5 record perwakilan hasil ekstraksi Baris 4-8</p>
+</div>
+</div>
+<div class="neu-recessed px-space-sm py-1 rounded-md text-text-secondary font-code-tabular text-[11px] self-start sm:self-auto">
+        Offset: Rows 4..8 of 1.895
+      </div>
+</div>
+<!-- Data Table Surface -->
+<div class="overflow-x-auto neu-recessed rounded-xl p-1 bg-surface-base">
+<table class="w-full text-left text-body-md text-text-main border-collapse">
+<thead>
+<tr class="font-label-sm text-label-sm text-text-secondary uppercase tracking-wider bg-surface-base border-b border-border-subtle/60">
+<th class="py-3 px-space-md">First Name</th>
+<th class="py-3 px-space-md">Last Name</th>
+<th class="py-3 px-space-md">Student / Emp ID (NIM)</th>
+<th class="py-3 px-space-md">Exam</th>
+<th class="py-3 px-space-md text-right">Score</th>
+<th class="py-3 px-space-md text-center">Result</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-subtle/40 font-body-md text-body-md">
+<!-- Row 1: Pass -->
+<tr class="hover:bg-surface-container-high/60 transition-colors">
+<td class="py-3 px-space-md font-body-bold">Ahmad Rizky</td>
+<td class="py-3 px-space-md">Pratama</td>
+<td class="py-3 px-space-md font-code-tabular text-primary">202031045</td>
+<td class="py-3 px-space-md">
+<span class="font-label-md text-label-md text-text-main">MOS Excel Associate 2019</span>
+<span class="block font-code-tabular text-[10px] text-text-secondary">MO-200</span>
+</td>
+<td class="py-3 px-space-md text-right font-code-tabular font-bold">870</td>
+<td class="py-3 px-space-md text-center">
+<span class="neu-pill-active px-2.5 py-1 rounded-full text-success font-label-sm text-label-sm font-bold bg-surface-base inline-flex items-center gap-1 border border-success/40">
+<span class="material-symbols-outlined text-[14px]">check</span> Pass
+              </span>
+</td>
+</tr>
+<!-- Row 2: Pass -->
+<tr class="hover:bg-surface-container-high/60 transition-colors">
+<td class="py-3 px-space-md font-body-bold">Siti Nur</td>
+<td class="py-3 px-space-md">Halizah</td>
+<td class="py-3 px-space-md font-code-tabular text-primary">202011089</td>
+<td class="py-3 px-space-md">
+<span class="font-label-md text-label-md text-text-main">MOS Word Associate 2019</span>
+<span class="block font-code-tabular text-[10px] text-text-secondary">MO-100</span>
+</td>
+<td class="py-3 px-space-md text-right font-code-tabular font-bold">925</td>
+<td class="py-3 px-space-md text-center">
+<span class="neu-pill-active px-2.5 py-1 rounded-full text-success font-label-sm text-label-sm font-bold bg-surface-base inline-flex items-center gap-1 border border-success/40">
+<span class="material-symbols-outlined text-[14px]">check</span> Pass
+              </span>
+</td>
+</tr>
+<!-- Row 3: Fail -->
+<tr class="hover:bg-surface-container-high/60 transition-colors">
+<td class="py-3 px-space-md font-body-bold">Dimas Bayu</td>
+<td class="py-3 px-space-md">Saputra</td>
+<td class="py-3 px-space-md font-code-tabular text-primary">202131012</td>
+<td class="py-3 px-space-md">
+<span class="font-label-md text-label-md text-text-main">MCF Azure Fundamentals</span>
+<span class="block font-code-tabular text-[10px] text-text-secondary">AZ-900</span>
+</td>
+<td class="py-3 px-space-md text-right font-code-tabular font-bold text-danger">610</td>
+<td class="py-3 px-space-md text-center">
+<span class="neu-pill-active px-2.5 py-1 rounded-full text-danger font-label-sm text-label-sm font-bold bg-surface-base inline-flex items-center gap-1 border border-danger/40">
+<span class="material-symbols-outlined text-[14px]">close</span> Fail
+              </span>
+</td>
+</tr>
+<!-- Row 4: Pass with Empty NIM anomaly -->
+<tr class="hover:bg-surface-container-high/60 transition-colors bg-warning/5">
+<td class="py-3 px-space-md font-body-bold">Fadhil Muhammad</td>
+<td class="py-3 px-space-md">Kurniawan</td>
+<td class="py-3 px-space-md">
+<span class="neu-pill-active px-2 py-0.5 rounded font-code-tabular text-[11px] text-warning bg-surface-base border border-warning/50">
+                (KOSONG / ANOMALI)
+              </span>
+</td>
+<td class="py-3 px-space-md">
+<span class="font-label-md text-label-md text-text-main">MOS PowerPoint 2019</span>
+<span class="block font-code-tabular text-[10px] text-text-secondary">MO-300</span>
+</td>
+<td class="py-3 px-space-md text-right font-code-tabular font-bold">780</td>
+<td class="py-3 px-space-md text-center">
+<span class="neu-pill-active px-2.5 py-1 rounded-full text-success font-label-sm text-label-sm font-bold bg-surface-base inline-flex items-center gap-1 border border-success/40">
+<span class="material-symbols-outlined text-[14px]">check</span> Pass
+              </span>
+</td>
+</tr>
+<!-- Row 5: Inco -->
+<tr class="hover:bg-surface-container-high/60 transition-colors">
+<td class="py-3 px-space-md font-body-bold">Rania Putri</td>
+<td class="py-3 px-space-md">Wulandari</td>
+<td class="py-3 px-space-md font-code-tabular text-primary">202051034</td>
+<td class="py-3 px-space-md">
+<span class="font-label-md text-label-md text-text-main">MOS Excel Expert 2019</span>
+<span class="block font-code-tabular text-[10px] text-text-secondary">MO-201</span>
+</td>
+<td class="py-3 px-space-md text-right font-code-tabular font-bold text-text-secondary">-</td>
+<td class="py-3 px-space-md text-center">
+<span class="neu-pill-active px-2.5 py-1 rounded-full text-warning font-label-sm text-label-sm font-bold bg-surface-base inline-flex items-center gap-1 border border-warning/40">
+<span class="material-symbols-outlined text-[14px]">pending</span> Inco
+              </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination & Helper Notice -->
+<div class="flex flex-col sm:flex-row items-center justify-between text-label-sm text-label-sm text-text-secondary pt-space-xs gap-space-xs">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">info</span>
+<span>Record baris 4 (Fadhil Muhammad) otomatis diarahkan ke Operator Task Queue karena NIM kosong.</span>
+</div>
+<span class="font-code-tabular text-[11px]">Previewing top 5 sample entries</span>
+</div>
+</div>
+<!-- Bottom Action Center Bar -->
+<div class="neu-raised rounded-xl p-space-md bg-surface-base flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm text-text-secondary">
+<span class="material-symbols-outlined text-primary text-[20px]">verified_user</span>
+<span class="font-body-md text-body-md">
+        Batch terverifikasi: <strong class="text-text-main font-semibold">1.785 Lulus Siap Sinkron</strong>
+</span>
+</div>
+<div class="flex flex-wrap items-center gap-space-md w-full sm:w-auto justify-end">
+<!-- Download Validation Log -->
+<button class="neu-icon-btn px-space-md py-2.5 rounded-xl font-label-md text-label-md text-text-main hover:text-primary flex items-center justify-center gap-space-xs transition-all w-full sm:w-auto" id="btn-download-log" type="button">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+<span>Download Log Validasi (.CSV)</span>
+</button>
+<!-- Primary Confirmation CTA -->
+<button class="px-space-lg py-2.5 rounded-xl bg-primary-container text-on-primary font-body-bold text-body-bold flex items-center justify-center gap-space-sm transition-all hover:opacity-95 shadow-md shadow-primary/30 w-full sm:w-auto" id="btn-save-batch" type="button">
+<span class="material-symbols-outlined text-[20px]">save</span>
+<span>Simpan Batch Certiport &amp; Aktifkan</span>
+</button>
+</div>
+</div>
+<!-- Interactive Client-side Script for Feedback -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnDownload = document.getElementById('btn-download-log');
+      const btnSave = document.getElementById('btn-save-batch');
+
+      if (btnDownload) {
+        btnDownload.addEventListener('click', () => {
+          const originalContent = btnDownload.innerHTML;
+          btnDownload.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span><span>Menyiapkan CSV...</span>';
+          setTimeout(() => {
+            btnDownload.innerHTML = '<span class="material-symbols-outlined text-[18px] text-success">download_done</span><span>Log Diunduh!</span>';
+            setTimeout(() => {
+              btnDownload.innerHTML = originalContent;
+            }, 2500);
+          }, 800);
+        });
+      }
+
+      if (btnSave) {
+        btnSave.addEventListener('click', () => {
+          const originalContent = btnSave.innerHTML;
+          btnSave.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin">sync</span><span>Menyimpan 1.785 Record...</span>';
+          btnSave.setAttribute('disabled', 'true');
+          
+          setTimeout(() => {
+            btnSave.classList.remove('bg-primary-container');
+            btnSave.classList.add('bg-success');
+            btnSave.innerHTML = '<span class="material-symbols-outlined text-[20px]">check_circle</span><span>Batch Certiport Aktif!</span>';
+            setTimeout(() => {
+              btnSave.classList.remove('bg-success');
+              btnSave.classList.add('bg-primary-container');
+              btnSave.removeAttribute('disabled');
+              btnSave.innerHTML = originalContent;
+            }, 3000);
+          }, 1200);
+        });
+      }
+    });
+  </script>
+</div></main><footer class="w-full bg-surface-base border-t border-border-subtle/70 py-space-md px-space-lg"><div class="flex flex-col md:flex-row items-center justify-between gap-space-sm text-text-secondary font-label-md text-label-md"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary text-[18px]">verified_user</span><span>Institut Teknologi PLN (ITPLN) © 2025. Pusat Sertifikasi &amp; ITCC. Hak Cipta Dilindungi.</span></div><div class="neu-recessed px-space-sm py-1 rounded-md text-text-main font-code-tabular text-[11px] border border-border-subtle/50 flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span><span>Output penulisan hanya memperbarui 2 kolom sertifikasi ITCC pada master SITASI</span></div></div></footer></div></body></html>

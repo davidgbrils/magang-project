@@ -1,0 +1,41 @@
+{
+  "project": "ITCC Wisuda Sync",
+  "projectId": "12724873765600380458",
+  "name": "Tactile Neumorphic Precision",
+  "colors": {
+    "surface": "#e0e0e0",
+    "background": "#f9f9f9",
+    "surfaceLowest": "#ffffff",
+    "surfaceHigh": "#e8e8e8",
+    "textMain": "#27313a",
+    "textSecondary": "#505a62",
+    "primary": "#356ae6",
+    "primaryStrong": "#0650cc",
+    "success": "#2f7d54",
+    "warning": "#956d18",
+    "danger": "#a43d42",
+    "highlight": "#ffffff",
+    "shadowDark": "#bebebe",
+    "border": "#d1d5db"
+  },
+  "typography": {
+    "body": "Plus Jakarta Sans",
+    "monospace": "JetBrains Mono",
+    "headline": "32px / 700 / 40px",
+    "bodyMd": "14px / 400 / 22px",
+    "labelMd": "12px / 600 / 16px"
+  },
+  "geometry": {
+    "controlRadius": "8px",
+    "panelRadius": "12px",
+    "largeRadius": "16px",
+    "desktopGutter": "24px",
+    "mobileGutter": "16px"
+  },
+  "elevation": {
+    "raised": "8px 8px 16px #bebebe, -8px -8px 16px #ffffff",
+    "recessed": "inset 5px 5px 10px #bebebe, inset -5px -5px 10px #ffffff",
+    "pressed": "inset 4px 4px 8px #bebebe, inset -4px -4px 8px #ffffff"
+  },
+  "source": "Stitch project metadata and downloaded screen HTML; neumorphism references supplied by project owner"
+}
